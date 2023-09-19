@@ -1,48 +1,28 @@
 #include <iostream>
-#include <fstream>
 
 #include <boost/json/serialize.hpp>
 
-#include "include/mynet.hpp"
+#include "include/api.hpp"
 
 int main(int argc, char *argv[]) {
-    if(argc < 2) {
-        fprintf(stderr, "*** Provide user data ***\n<HTS ID>\n<CANO>\n<CANO2>\n<App Key>\n<App Secret>\n");
-        exit(1);
-    }
-    std::ifstream fs;
-    fs.open(argv[1]);
-    std::string htsID;
-    fs >> htsID;
-    std::string CANO;
-    fs >> CANO;
-    std::string CANO2;
-    fs >> CANO2;
-    std::string appkey;
-    fs >> appkey;
-    std::string appsecret;
-    fs >> appsecret;
-    fs.close();
+    api::kis::init(argc, argv);
+    api::kis::oauth::approval();
+    api::kis::oauth::token();
 
-    int port = 29443;
-    mynet::http client;
-    std::string domain = "openapivts.koreainvestment.com";
-    std::string path = "/oauth2/tokenP";
-    std::string url = "https://" + domain + ":" + std::to_string(port) + path;
-
+    api::kis::show_user();
     
-    boost::json::object header = mynet::default_header;
-    header["Host"] = "openapivts.koreainvestment.com";
-    
-    boost::json::object body;
-    body["grant_type"] = "client_credentials";
-    body["appkey"] = appkey;
-    body["appsecret"] = appsecret;
-
-    std::string response = client.post(url, header, body);
-
-    std::cout << "*** RESPONSE PACKET ***\n" + response + "\n\n" << std::endl;
-    std::pair<boost::json::object, boost::json::object> packet_pair = mynet::packet_split(response);
-
+    std::string code = "005930";
+    std::string start = "20220104";
+    std::string end = "20230406";
+    std::string time = "121514";
+    std::string type = "300";
+    std::string sort = "1";
+    std::pair<boost::json::object, boost::json::object> response;
+    do {
+        response = api::kis::domestic::index_minute_price(code);
+        std::cout << boost::json::serialize(response.first) << std::endl;
+        std::cout << boost::json::serialize(response.second) << std::endl;
+        sleep(0.5);
+    } while(response.first["tr_cont"] == "M");
     return 0;
 }
