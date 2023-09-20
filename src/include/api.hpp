@@ -31,6 +31,20 @@ namespace api {
         };
 
         namespace domestic {
+            std::pair<boost::json::object, boost::json::object> buy(std::string& code, int qty, int price=0);
+            std::pair<boost::json::object, boost::json::object> sell(std::string& code, int qty, int price=0);
+
+            // Order
+            
+            std::pair<boost::json::object, boost::json::object> order_cash(bool buy, std::string& code, int qty, int price=0, std::string div="01");
+            std::pair<boost::json::object, boost::json::object> order_credit(bool buy, std::string& code, std::string& crd_type, std::string& loan_date, int qty, int price=0, std::string div="01");
+            std::pair<boost::json::object, boost::json::object> revise_cancel(bool revise_cancel, bool remain_all, std::string& code, int qty, int price=0, std::string div="01");
+            std::pair<boost::json::object, boost::json::object> my_daily_order(bool in3month, std::string& start, std::string& end, std::string cont_fk100="", std::string cont_nk100="", std::string code="", std::string div="00");
+
+
+
+            // Inquire
+
             std::pair<boost::json::object, boost::json::object> price(std::string& code);
             std::pair<boost::json::object, boost::json::object> ccnl(std::string& code);
             std::pair<boost::json::object, boost::json::object> period_price(std::string& code, std::string period="D");
