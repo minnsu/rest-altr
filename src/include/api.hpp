@@ -39,9 +39,13 @@ namespace api {
             std::pair<boost::json::object, boost::json::object> order_cash(bool buy, std::string& code, int qty, int price=0, std::string div="01");
             std::pair<boost::json::object, boost::json::object> order_credit(bool buy, std::string& code, std::string& crd_type, std::string& loan_date, int qty, int price=0, std::string div="01");
             std::pair<boost::json::object, boost::json::object> revise_cancel(bool revise_cancel, bool remain_all, std::string& code, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> my_daily_order(bool in3month, std::string& start, std::string& end, std::string cont_fk100="", std::string cont_nk100="", std::string code="", std::string div="00");
-
-
+            std::pair<boost::json::object, boost::json::object> daily_order(bool in3month, std::string& start, std::string& end, std::string cont_fk100="", std::string cont_nk100="", std::string code="", std::string div="00");
+            std::pair<boost::json::object, boost::json::object> stock_balance(std::string cont_fk100="", std::string cont_nk100="",std::string div="02");
+            std::pair<boost::json::object, boost::json::object> order_reserve(bool buy, std::string& end_date, std::string& code, int qty, int price=0, std::string div="01");
+            std::pair<boost::json::object, boost::json::object> revise_cancel_reserve(bool revise_cancel, bool buy, std::string& end_date, std::string& code, std::string& order, int qty, int price=0, std::string div="01");
+            std::pair<boost::json::object, boost::json::object> reserve_order_list(std::string& start_date, std::string& end_date, std::string& order_seq, std::string code="", std::string cont_fk200="", std::string cont_nk200="");
+            std::pair<boost::json::object, boost::json::object> profit_loss(std::string cont_fk100="", std::string cont_nk100="");
+            std::pair<boost::json::object, boost::json::object> account_balance();
 
             // Inquire
 
@@ -67,6 +71,12 @@ namespace api {
             std::pair<boost::json::object, boost::json::object> volume_rank(std::string& sort, std::string target="111111111", std::string min_price="", std::string max_price="", std::string min_volume="");
             std::pair<boost::json::object, boost::json::object> foreign_institution_by_stock(std::string& code);
             std::pair<boost::json::object, boost::json::object> index_minute_price(std::string& code, std::string period="60");
+
+            // Realtime
+
+            std::pair<boost::json::object, boost::json::object> conclude_price(bool attach, std::string& code);
+            std::pair<boost::json::object, boost::json::object> asking_price(bool attach, std::string& code);
+            std::pair<boost::json::object, boost::json::object> conclude_notify(bool attach, std::string& code);
         };
 
 

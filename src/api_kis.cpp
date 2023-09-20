@@ -37,7 +37,7 @@ boost::json::object api::kis::default_tr_header = {
     {"custtype", "P"},
 };
 boost::json::object api::kis::default_ws_header = {
-    {"Content-Type", "utf-8"},
+    {"Content-Type", "text/plain; utf-8"},
     {"approval_key", ""},
     {"custtype", "P"},
     {"tr_type", ""},
