@@ -2,9 +2,9 @@
 #include <fstream>
 
 #include <boost/json/serialize.hpp>
+#include <boost/json/parse.hpp>
 
-#include "include/api.hpp"
-#include "include/net.hpp"
+#include "../api.hpp"
 
 using namespace std;
 
@@ -39,10 +39,7 @@ boost::json::object api::kis::default_tr_header = {
     {"custtype", "P"},
 };
 boost::json::object api::kis::default_ws_header = {
-    {"Content-Type", "text/plain; utf-8"},
-    {"Host", ""},
-    {"Connection", "Upgrade"},
-    {"Upgrade", "websocket"},
+    {"content-type", "utf-8"},
     {"approval_key", ""},
     {"custtype", "P"},
     {"tr_type", ""},
@@ -71,7 +68,6 @@ void api::kis::init(int argc, char *argv[]) {
     }
     api::kis::default_header["Host"] = api::kis::domain;
     api::kis::default_tr_header["Host"] = api::kis::domain;
-    api::kis::default_ws_header["Host"] = api::kis::ws_domain;
     api::kis::default_tr_header["appkey"] = api::kis::appkey;
     api::kis::default_tr_header["appsecret"] = api::kis::appsecret;
 }
@@ -142,6 +138,26 @@ void api::kis::oauth::token(bool revoke) {
         api::kis::token = response.second["access_token"].as_string();
         api::kis::default_tr_header["authorization"] = "Bearer " + api::kis::token;
     }
+}
+
+pair<boost::json::object, boost::json::object> api::kis::send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body) {
+    boost::json::value input = {
+        {"input", body},
+    };
+    boost::json::object packet = {
+        {"header", header},
+        {"body", input}
+    };
+
+    string packet_str = boost::json::serialize(packet);    
+    string response_str = ws_client.send(packet_str);
+    
+    boost::json::object response = boost::json::parse(response_str).as_object();
+    return {response["header"].as_object(), response["body"].as_object()};
+
+}
+string api::kis::read_ws(net::websocket& ws_client) {
+    return ws_client.read();
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#include "include/api.hpp"
+#include "../../api.hpp"
 
 using namespace std;
 
@@ -9,7 +9,7 @@ using namespace std;
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_price(bool attach, string& code) {
+pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_price(net::websocket& ws_client, bool attach, string& code) {
     string path = "/tryitout/H0STCNT0";
 
     boost::json::object header = api::kis::default_ws_header;
@@ -18,7 +18,7 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_pric
         {"tr_id", "H0STCNT0"},
         {"tr_key", code},
     };
-    return api::kis::post(path, header, body);
+    return api::kis::send_ws(ws_client, header, body);
 }
 
 /**
@@ -26,7 +26,7 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_pric
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(bool attach, string& code) {
+pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(net::websocket& ws_client, bool attach, string& code) {
     string path = "/tryitout/H0STASP0";
 
     boost::json::object header = api::kis::default_ws_header;
@@ -35,7 +35,7 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(
         {"tr_id", "H0STASP0"},
         {"tr_key", code},
     };
-    return api::kis::post(path, header, body);
+    return api::kis::send_ws(ws_client, header, body);
 }
 
 /**
@@ -43,7 +43,7 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_notify(bool attach, string& code) {
+pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_notify(net::websocket& ws_client, bool attach) {
     string path = "/tryitout/H0STCNI0";
 
     boost::json::object header = api::kis::default_ws_header;
@@ -52,7 +52,7 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_noti
         {"tr_id", (api::kis::system ? "H0STCNI0" : "H0STCNI9")},
         {"tr_key", api::kis::htsID},
     };
-    return api::kis::post(path, header, body);
+    return api::kis::send_ws(ws_client, header, body);
 }
 
 // ------------------------------------------------------------------------------------------------

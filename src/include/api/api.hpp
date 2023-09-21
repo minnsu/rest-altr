@@ -1,6 +1,6 @@
 #include <string>
 
-#include <boost/json/object.hpp>
+#include "../net/net.hpp"
 
 namespace api {
     namespace kis {
@@ -26,6 +26,10 @@ namespace api {
 
         std::pair<boost::json::object, boost::json::object> post(std::string& path, boost::json::object& header, boost::json::object& body);
         std::pair<boost::json::object, boost::json::object> get(std::string& path, boost::json::object& header, boost::json::object& params);
+
+        std::pair<boost::json::object, boost::json::object> send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body);
+        std::string read_ws(net::websocket& ws_client);
+        
 
         namespace oauth {
             void approval();
@@ -76,9 +80,9 @@ namespace api {
 
             // Realtime
 
-            std::pair<boost::json::object, boost::json::object> conclude_price(bool attach, std::string& code);
-            std::pair<boost::json::object, boost::json::object> asking_price(bool attach, std::string& code);
-            std::pair<boost::json::object, boost::json::object> conclude_notify(bool attach, std::string& code);
+            std::pair<boost::json::object, boost::json::object> conclude_price(net::websocket& ws_client, bool attach, std::string& code);
+            std::pair<boost::json::object, boost::json::object> asking_price(net::websocket& ws_client, bool attach, std::string& code);
+            std::pair<boost::json::object, boost::json::object> conclude_notify(net::websocket& ws_client, bool attach);
         };
 
 

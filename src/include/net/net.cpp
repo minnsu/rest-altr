@@ -7,10 +7,11 @@
 #include <boost/json/src.hpp>
 #include <boost/regex.hpp>
 
-#include "include/net.hpp"
+#include "net.hpp"
 
 using namespace std;
 using namespace boost::asio;
+namespace beast = boost::beast;
 
 // net namespace ----------------------------------------------------------------------------------
 
@@ -56,7 +57,6 @@ pair<boost::json::object, boost::json::object> net::packet_split(string& packet)
     if((pos_h = remain.find(": ")) != string::npos) {
         header[remain.substr(0, pos_h)] = remain.substr(pos_h + 2);
     }
-
     boost::json::object body = boost::json::parse(body_str).as_object();
     return {header, body};
 }
@@ -152,7 +152,6 @@ string net::https::get(string& url, boost::json::object& header, boost::json::ob
     int port;
     string path;
     extract_from_url(url, domain, port, path);
-    cout << domain << " " << port << " " << path << endl;
     return get(domain, port, path, header, params);
 }
 
@@ -161,8 +160,8 @@ string net::https::get(string& url, boost::json::object& header, boost::json::ob
 
 // net::websocket namespace -----------------------------------------------------------------------
 
-net::websocket::websocket() : io(), resolver(this->io), socket(this->io) {};
-net::websocket::websocket(string& domain, int port) : io(), resolver(this->io), socket(this->io) {
+net::websocket::websocket() : io(), resolver(this->io), ws(this->io) {};
+net::websocket::websocket(string& domain, int port) : io(), resolver(this->io), ws(this->io) {
     if(this->connect(domain, port))
         cout << "Connect to " + domain + " has succeed." << endl;
     else
@@ -174,53 +173,45 @@ bool net::websocket::connect(string& domain, int port) {
     ip::tcp::resolver::iterator iter = net::https::resolver.resolve(query);
     
     boost::system::error_code ec;
-    boost::asio::connect(this->socket, iter, ec);
+    auto ep = boost::asio::connect(this->ws.next_layer(), iter, ec);
     if(ec) {
         cout << ec.message() << endl;
         return false;
     }
+    ws.handshake(domain + ":" + to_string(port), "/");
     return true;
 }
 
 string net::websocket::send(string& packet) {
     try {
-        write(socket, buffer(packet));
+        this->ws.write(buffer(packet));
         
-        boost::asio::streambuf response;
-        read_until(socket, response, boost::regex("}$"));
-        
-        istream response_stream(&response);
-        stringstream response_data;
-        response_data << response_stream.rdbuf();
+        beast::flat_buffer buffer;
+        this->ws.read(buffer);
 
-        return response_data.str();
+        return beast::buffers_to_string(buffer.data());
     } catch(exception& e) {
         cerr << "Exception: " << e.what() << endl;
         return "";
     }
 }
 
-string net::websocket::send(string& header, string& body) {
-    string packet = header + to_string(body.length()) + "\r\n\r\n" + body;
-    cout << packet << endl;
-    return net::websocket::send(packet);
-}
-
-string net::websocket::send(string& path, boost::json::object& header, boost::json::object& body) {
-    string header_str = net::json2header(header, string("POST"), path);
-    string body_str = boost::json::serialize(body);
-    return net::websocket::send(header_str, body_str);
-}
-
-
 string net::websocket::read() {
-    boost::system::error_code ec;
-    this->socket.read_some(buffer(this->packet_buffer), ec);
-    if(ec) {
-        cout << ec.message() << endl;
-        return "";
-    }
-    return string(this->packet_buffer);
+    beast::flat_buffer buffer;
+    this->ws.read(buffer);
+    string response = beast::buffers_to_string(buffer.data());
+
+    return response;
+}
+
+void net::websocket::pong(string& ping) {
+    beast::websocket::ping_data ping_data(ping);
+    this->ws.pong(ping_data);
+    cout << "PONG" << endl;
+}
+
+bool net::websocket::close() {
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------

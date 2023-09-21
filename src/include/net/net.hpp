@@ -2,8 +2,14 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+
 #include <boost/json/object.hpp>
 
+#ifndef NET_HPP
+#define NET_HPP
 namespace net {
     std::string json2header(boost::json::object& header, std::string method, std::string path);
     std::string json2params(boost::json::object& params);
@@ -30,9 +36,7 @@ namespace net {
     private:
         boost::asio::io_service io;
         boost::asio::ip::tcp::resolver resolver;
-        boost::asio::ip::tcp::socket socket;
-
-        char packet_buffer[0xFFFF];
+        boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws;
 
     public:
         websocket();
@@ -40,8 +44,10 @@ namespace net {
 
         bool connect(std::string& domain, int port);
         std::string send(std::string& packet);
-        std::string send(std::string& header, std::string& body);
-        std::string send(std::string& path, boost::json::object& header, boost::json::object& body);
         std::string read();
+
+        void pong(std::string& ping);
+        bool close();
     }; 
 };
+#endif
