@@ -82,10 +82,10 @@ void net::extract_from_url(string& url, string& domain, int& port, string& path)
 
 boost::asio::io_service net::https::io;
 boost::asio::ip::tcp::resolver net::https::resolver(net::https::io);
+ssl::context net::https::context(ssl::context::sslv23);
 
 // Send raw packet.
 string net::https::send_packet(string& domain, int port, string& packet) {    
-    ssl::context context(ssl::context::sslv23); // Why 'context' can not be a member variable? [Segmentation Fault Occured]
     ssl::stream<ip::tcp::socket> socket(net::https::io, context);
 
     ip::tcp::resolver::query query(domain, to_string(port));
@@ -154,6 +154,73 @@ string net::https::get(string& url, boost::json::object& header, boost::json::ob
     extract_from_url(url, domain, port, path);
     cout << domain << " " << port << " " << path << endl;
     return get(domain, port, path, header, params);
+}
+
+// ------------------------------------------------------------------------------------------------
+
+
+// net::websocket namespace -----------------------------------------------------------------------
+
+net::websocket::websocket() : io(), resolver(this->io), socket(this->io) {};
+net::websocket::websocket(string& domain, int port) : io(), resolver(this->io), socket(this->io) {
+    if(this->connect(domain, port))
+        cout << "Connect to " + domain + " has succeed." << endl;
+    else
+        cout << "Connect to " + domain + " has failed." << endl;
+};
+
+bool net::websocket::connect(string& domain, int port) {
+    ip::tcp::resolver::query query(domain, to_string(port));
+    ip::tcp::resolver::iterator iter = net::https::resolver.resolve(query);
+    
+    boost::system::error_code ec;
+    boost::asio::connect(this->socket, iter, ec);
+    if(ec) {
+        cout << ec.message() << endl;
+        return false;
+    }
+    return true;
+}
+
+string net::websocket::send(string& packet) {
+    try {
+        write(socket, buffer(packet));
+        
+        boost::asio::streambuf response;
+        read_until(socket, response, boost::regex("}$"));
+        
+        istream response_stream(&response);
+        stringstream response_data;
+        response_data << response_stream.rdbuf();
+
+        return response_data.str();
+    } catch(exception& e) {
+        cerr << "Exception: " << e.what() << endl;
+        return "";
+    }
+}
+
+string net::websocket::send(string& header, string& body) {
+    string packet = header + to_string(body.length()) + "\r\n\r\n" + body;
+    cout << packet << endl;
+    return net::websocket::send(packet);
+}
+
+string net::websocket::send(string& path, boost::json::object& header, boost::json::object& body) {
+    string header_str = net::json2header(header, string("POST"), path);
+    string body_str = boost::json::serialize(body);
+    return net::websocket::send(header_str, body_str);
+}
+
+
+string net::websocket::read() {
+    boost::system::error_code ec;
+    this->socket.read_some(buffer(this->packet_buffer), ec);
+    if(ec) {
+        cout << ec.message() << endl;
+        return "";
+    }
+    return string(this->packet_buffer);
 }
 
 // ------------------------------------------------------------------------------------------------

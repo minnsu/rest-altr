@@ -14,6 +14,8 @@ namespace api {
         extern bool system;
         extern std::string domain;
         extern int port;
+        extern std::string ws_domain;
+        extern int ws_port;
 
         extern boost::json::object default_header;
         extern boost::json::object default_tr_header;

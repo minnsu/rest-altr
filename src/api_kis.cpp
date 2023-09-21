@@ -21,6 +21,8 @@ string api::kis::approval;
 bool api::kis::system = false;
 string api::kis::domain = "openapivts.koreainvestment.com";
 int api::kis::port = 29443;
+string api::kis::ws_domain = "ops.koreainvestment.com";
+int api::kis::ws_port = 31000;
 
 boost::json::object api::kis::default_header = {
     {"Content-Type", "application/json; charset=utf-8"},
@@ -38,6 +40,9 @@ boost::json::object api::kis::default_tr_header = {
 };
 boost::json::object api::kis::default_ws_header = {
     {"Content-Type", "text/plain; utf-8"},
+    {"Host", ""},
+    {"Connection", "Upgrade"},
+    {"Upgrade", "websocket"},
     {"approval_key", ""},
     {"custtype", "P"},
     {"tr_type", ""},
@@ -62,9 +67,11 @@ void api::kis::init(int argc, char *argv[]) {
         api::kis::system = true;
         api::kis::domain = "openapi.koreainvestment.com";
         api::kis::port = 9443;
+        api::kis::ws_port = 21000;
     }
     api::kis::default_header["Host"] = api::kis::domain;
     api::kis::default_tr_header["Host"] = api::kis::domain;
+    api::kis::default_ws_header["Host"] = api::kis::ws_domain;
     api::kis::default_tr_header["appkey"] = api::kis::appkey;
     api::kis::default_tr_header["appsecret"] = api::kis::appsecret;
 }
