@@ -1,6 +1,6 @@
 #include "../../api.hpp"
 
-using namespace std;
+using namespace api::kis;
 
 // api::kis::domestic namespace, Realtime functions ------------------------------------------------
 
@@ -9,12 +9,12 @@ using namespace std;
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_price(net::websocket& ws_client, bool attach, string& code) {
+pair<json::object, json::object> domestic::conclude_price(net::websocket& ws_client, bool attach, string& code) {
     string path = "/tryitout/H0STCNT0";
 
-    boost::json::object header = api::kis::default_ws_header;
+    json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
-    boost::json::object body = {
+    json::object body = {
         {"tr_id", "H0STCNT0"},
         {"tr_key", code},
     };
@@ -26,12 +26,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_pric
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(net::websocket& ws_client, bool attach, string& code) {
+pair<json::object, json::object> domestic::asking_price(net::websocket& ws_client, bool attach, string& code) {
     string path = "/tryitout/H0STASP0";
 
-    boost::json::object header = api::kis::default_ws_header;
+    json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
-    boost::json::object body = {
+    json::object body = {
         {"tr_id", "H0STASP0"},
         {"tr_key", code},
     };
@@ -43,12 +43,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::asking_price(
  * @param {bool} attach: true=attach, false=detach
  * @param {string&} code: stock code
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::conclude_notify(net::websocket& ws_client, bool attach) {
+pair<json::object, json::object> domestic::conclude_notify(net::websocket& ws_client, bool attach) {
     string path = "/tryitout/H0STCNI0";
 
-    boost::json::object header = api::kis::default_ws_header;
+    json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
-    boost::json::object body = {
+    json::object body = {
         {"tr_id", (api::kis::system ? "H0STCNI0" : "H0STCNI9")},
         {"tr_key", api::kis::htsID},
     };

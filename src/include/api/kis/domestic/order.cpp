@@ -1,6 +1,6 @@
 #include "../../api.hpp"
 
-using namespace std;
+using namespace api::kis;
 
 // api::kis::domestic namespace, Order functions ---------------------------------------------------
 
@@ -10,11 +10,11 @@ using namespace std;
  * @param {int} qty: quantity
  * @param {int} price: default=0, then buy with market price. Else, buy with specified price.
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::buy(string& code, int qty, int price) {
+pair<json::object, json::object> domestic::buy(string& code, int qty, int price) {
     if(price != 0)
-        return api::kis::domestic::order_cash(true, code, qty, price, "00");
+        return domestic::order_cash(true, code, qty, price, "00");
     else
-        return api::kis::domestic::order_cash(true, code, qty);
+        return domestic::order_cash(true, code, qty);
 }
 
 /**
@@ -23,11 +23,11 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::buy(string& c
  * @param {int} qty: quantity
  * @param {int} price: default=0, then sell with market price. Else, sell with specified price.
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::sell(string& code, int qty, int price) {
+pair<json::object, json::object> domestic::sell(string& code, int qty, int price) {
     if(price != 0)
-        return api::kis::domestic::order_cash(false, code, qty, price, "00");
+        return domestic::order_cash(false, code, qty, price, "00");
     else
-        return api::kis::domestic::order_cash(false, code, qty);
+        return domestic::order_cash(false, code, qty);
 }
 
 /**
@@ -38,12 +38,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::sell(string& 
  * @param {int} price: price
  * @param {string} div: market price(default)="01", "00"(specified price)~"16"(FOK) order division
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::order_cash(bool buy, string& code, int qty, int price, string div) {
+pair<json::object, json::object> domestic::order_cash(bool buy, string& code, int qty, int price, string div) {
     string path = "/uapi/domestic-stock/v1/trading/order-cash";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = api::kis::system ? (buy ? "TTTC0802U" : "TTTC0801U") : (buy ? "VTTC0802U" : "VTTC0801U");
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"PDNO", code},
@@ -64,12 +64,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::order_cash(bo
  * @param {int} price: price
  * @param {string} div: market price(default)="01", "00"(specified price)~"16"(FOK) order division
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::order_credit(bool buy, string& code, string& crd_type, string& loan_date, int qty, int price, string div) {
+pair<json::object, json::object> domestic::order_credit(bool buy, string& code, string& crd_type, string& loan_date, int qty, int price, string div) {
     string path = "/uapi/domestic-stock/v1/trading/order-credit";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = default_tr_header;
     header["tr_id"] = buy ? "TTTC0852U" : "TTTC0851U";
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"PDNO", code},
@@ -86,21 +86,21 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::order_credit(
  * Domestic: Revise or cancel the order. {revise_cancel: true=cancel, false=revise}, {remain_all: true=all, false=some}
  * @param {bool} revise_cancel: true=cancel, false=revise
  * @param {bool} remain_all: true=all, false=some of remain
- * @param {string&} order: order number
+ * @param {string&} order_num: order number
  * @param {int} qty: quantity
  * @param {int} price: price
  * @param {string} div: market price(default)="01", "00"(specified price)~"16"(FOK) order division
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::revise_cancel(bool revise_cancel, bool remain_all, string& order, int qty, int price, string div) {
+pair<json::object, json::object> domestic::revise_cancel(bool revise_cancel, bool remain_all, string& order_num, int qty, int price, string div) {
     string path = "/uapi/domestic-stock/v1/trading/order-rvsecncl";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = api::kis::system ? "TTTC0803U" : "VTTC0803U";
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"KRX_FWDG_ORD_ORGNO", ""},
-        {"ORGN_ODNO", order},
+        {"ORGN_ODNO", order_num},
         {"ORD_DVSN", div},
         {"RVSE_CNCL_DVSN_CD", (revise_cancel ? "02" : "01")},
         {"ORD_QTY", to_string(qty)},
@@ -120,12 +120,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::revise_cancel
  * @param {string} code: default="", specifiy the stock code.
  * @param {string} div: all(default)="00", sell="01", buy="02"
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::daily_order(bool in3month, string& start, string& end, string cont_fk100, string cont_nk100, string code, string div) {
+pair<json::object, json::object> domestic::daily_order(bool in3month, string& start, string& end, string cont_fk100, string cont_nk100, string code, string div) {
     string path = "/uapi/domestic-stock/v1/trading/inquire-daily-ccld";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = api::kis::system ? (in3month ? "TTTC8001R" : "CTSC9115R") : (in3month ? "VTTC8001R" : "VTSC9115R");
-    boost::json::object params = {
+    json::object params = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"INQR_STRT_DT", start},
@@ -150,12 +150,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::daily_order(b
  * @param {string} cont_nk100: default="", continues=return.second["output"]["CTX_AREA_NK100"]
  * @param {string} div: by stocks(default)="02", by loan dates="01"
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::stock_balance(string cont_fk100, string cont_nk100, string div) {
+pair<json::object, json::object> domestic::stock_balance(string cont_fk100, string cont_nk100, string div) {
     string path = "/uapi/domestic-stock/v1/trading/inquire-balance";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = api::kis::system ? "TTTC8434R" : "VTTC8434R";
-    boost::json::object params = {
+    json::object params = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"AFHR_FLPR_YN", "N"},
@@ -180,12 +180,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::stock_balance
  * @param {int} price: price(default)=0
  * @param {string} div: market price(default)="01", "00"(specified price)~"16"(FOK) order division
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::order_reserve(bool buy, string& end_date, string& code, int qty, int price, string div) {
+pair<json::object, json::object> domestic::order_reserve(bool buy, string& end_date, string& code, int qty, int price, string div) {
     string path = "/uapi/domestic-stock/v1/trading/order-resv";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "CTSC0008U";
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"PDNO", code},
@@ -202,22 +202,22 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::order_reserve
 }
 
 /**
- * Domestic: Revise or cancel the order. {revise_cancel: true=cancel, false=revise}, {remain_all: true=all, false=some}
+ * Domestic: Revise or cancel reservation order. {revise_cancel: true=cancel, false=revise}, {remain_all: true=all, false=some}
  * @param {bool} revise_cancel: true=cancel, false=revise
  * @param {bool} buy: true=buy, false=sell
  * @param {string&} end_date: reservation end date. maximum after 30 days. ex) "20230920"
  * @param {string&} code: stock code
- * @param {string&} order: order number
+ * @param {string&} order_num: order number
  * @param {int} qty: quantity
  * @param {int} price: price
  * @param {string} div: market price(default)="01", "00"(specified price)~"16"(FOK) order division
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::revise_cancel_reserve(bool revise_cancel, bool buy, string& end_date, string& code, string& order, int qty, int price, string div) {
+pair<json::object, json::object> domestic::revise_cancel_reserve(bool revise_cancel, bool buy, string& end_date, string& code, string& order_num, int qty, int price, string div) {
     string path = "/uapi/domestic-stock/v1/trading/order-resv-rvsecncl";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = revise_cancel ? "CTSC0009U" : "CTSC0013U";
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"PDNO", code},
@@ -245,12 +245,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::revise_cancel
  * @param {string} cont_fk200: continue variable. result.seond["output"]["CTX_AREA_FK200"]
  * @param {string} cont_nk200: continue variable. result.seond["output"]["CTX_AREA_NK200"]
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::reserve_order_list(string& start_date, string& end_date, string& order_seq, string code, string cont_fk200, string cont_nk200) {
+pair<json::object, json::object> domestic::reserve_order_list(string& start_date, string& end_date, string& order_seq, string code, string cont_fk200, string cont_nk200) {
     string path = "/uapi/domestic-stock/v1/trading/order-resv-ccnl";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "CTSC0004R";
-    boost::json::object params = {
+    json::object params = {
         {"RSVN_ORD_ORD_DT", start_date},
         {"RSVN_ORD_END_DT", end_date},
         {"RSVN_ORD_SEQ", order_seq},
@@ -272,12 +272,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::reserve_order
  * @param {string} cont_fk100: continue variable. result.seond["output"]["CTX_AREA_FK100"]
  * @param {string} cont_nk100: continue variable. result.seond["output"]["CTX_AREA_NK100"]
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::profit_loss(string cont_fk100, string cont_nk100) {
+pair<json::object, json::object> domestic::profit_loss(string cont_fk100, string cont_nk100) {
     string path = "/uapi/domestic-stock/v1/trading/inquire-balance-rlz-pl";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "TTTC8494R";
-    boost::json::object body = {
+    json::object body = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"AFHR_FLPR_YN", "N"},
@@ -297,12 +297,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::profit_loss(s
 /**
  * Domestic: Inquire account balance.
 */
-pair<boost::json::object, boost::json::object> api::kis::domestic::account_balance() {
+pair<json::object, json::object> domestic::account_balance() {
     string path = "/uapi/domestic-stock/v1/trading/inquire-account-balance";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "CTRP6548R";
-    boost::json::object params = {
+    json::object params = {
         {"CANO", api::kis::CANO},
         {"ACNT_PRDT_CD", api::kis::CANO2},
         {"INQR_DVSN_1", ""},

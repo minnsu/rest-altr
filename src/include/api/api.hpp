@@ -2,33 +2,36 @@
 
 #include "../net/net.hpp"
 
+using namespace std;
+using namespace boost;
+
 namespace api {
     namespace kis {
-        extern std::string htsID;
-        extern std::string CANO;
-        extern std::string CANO2;
-        extern std::string appkey;
-        extern std::string appsecret;
-        extern std::string token;
-        extern std::string approval;
+        extern string htsID;
+        extern string CANO;
+        extern string CANO2;
+        extern string appkey;
+        extern string appsecret;
+        extern string token;
+        extern string approval;
         extern bool system;
-        extern std::string domain;
+        extern string domain;
         extern int port;
-        extern std::string ws_domain;
+        extern string ws_domain;
         extern int ws_port;
 
-        extern boost::json::object default_header;
-        extern boost::json::object default_tr_header;
-        extern boost::json::object default_ws_header;
+        extern json::object default_header;
+        extern json::object default_tr_header;
+        extern json::object default_ws_header;
 
         void init(int argc, char *argv[]);
         void show_user(bool secret=false);
 
-        std::pair<boost::json::object, boost::json::object> post(std::string& path, boost::json::object& header, boost::json::object& body);
-        std::pair<boost::json::object, boost::json::object> get(std::string& path, boost::json::object& header, boost::json::object& params);
+        pair<json::object, json::object> post(string& path, json::object& header, json::object& body);
+        pair<json::object, json::object> get(string& path, json::object& header, json::object& params);
 
-        std::pair<boost::json::object, boost::json::object> send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body);
-        std::string read_ws(net::websocket& ws_client);
+        pair<json::object, json::object> send_ws(net::websocket& ws_client, json::object& header, json::object& body);
+        string read_ws(net::websocket& ws_client);
         
 
         namespace oauth {
@@ -37,54 +40,93 @@ namespace api {
         };
 
         namespace domestic {
-            std::pair<boost::json::object, boost::json::object> buy(std::string& code, int qty, int price=0);
-            std::pair<boost::json::object, boost::json::object> sell(std::string& code, int qty, int price=0);
+            pair<json::object, json::object> buy(string& code, int qty, int price=0);
+            pair<json::object, json::object> sell(string& code, int qty, int price=0);
 
             // Order
             
-            std::pair<boost::json::object, boost::json::object> order_cash(bool buy, std::string& code, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> order_credit(bool buy, std::string& code, std::string& crd_type, std::string& loan_date, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> revise_cancel(bool revise_cancel, bool remain_all, std::string& code, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> daily_order(bool in3month, std::string& start, std::string& end, std::string cont_fk100="", std::string cont_nk100="", std::string code="", std::string div="00");
-            std::pair<boost::json::object, boost::json::object> stock_balance(std::string cont_fk100="", std::string cont_nk100="",std::string div="02");
-            std::pair<boost::json::object, boost::json::object> order_reserve(bool buy, std::string& end_date, std::string& code, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> revise_cancel_reserve(bool revise_cancel, bool buy, std::string& end_date, std::string& code, std::string& order, int qty, int price=0, std::string div="01");
-            std::pair<boost::json::object, boost::json::object> reserve_order_list(std::string& start_date, std::string& end_date, std::string& order_seq, std::string code="", std::string cont_fk200="", std::string cont_nk200="");
-            std::pair<boost::json::object, boost::json::object> profit_loss(std::string cont_fk100="", std::string cont_nk100="");
-            std::pair<boost::json::object, boost::json::object> account_balance();
+            pair<json::object, json::object> order_cash(bool buy, string& code, int qty, int price=0, string div="01");
+            pair<json::object, json::object> order_credit(bool buy, string& code, string& crd_type, string& loan_date, int qty, int price=0, string div="01");
+            pair<json::object, json::object> revise_cancel(bool revise_cancel, bool remain_all, string& order_num, int qty, int price=0, string div="01");
+            pair<json::object, json::object> daily_order(bool in3month, string& start, string& end, string cont_fk100="", string cont_nk100="", string code="", string div="00");
+            pair<json::object, json::object> stock_balance(string cont_fk100="", string cont_nk100="",string div="02");
+            pair<json::object, json::object> order_reserve(bool buy, string& end_date, string& code, int qty, int price=0, string div="01");
+            pair<json::object, json::object> revise_cancel_reserve(bool revise_cancel, bool buy, string& end_date, string& code, string& order_num, int qty, int price=0, string div="01");
+            pair<json::object, json::object> reserve_order_list(string& start_date, string& end_date, string& order_seq, string code="", string cont_fk200="", string cont_nk200="");
+            pair<json::object, json::object> profit_loss(string cont_fk100="", string cont_nk100="");
+            pair<json::object, json::object> account_balance();
 
             // Inquire
 
-            std::pair<boost::json::object, boost::json::object> price(std::string& code);
-            std::pair<boost::json::object, boost::json::object> ccnl(std::string& code);
-            std::pair<boost::json::object, boost::json::object> period_price(std::string& code, std::string period="D");
-            std::pair<boost::json::object, boost::json::object> ask_ccnl(std::string& code);
-            std::pair<boost::json::object, boost::json::object> investor(std::string& code);
-            std::pair<boost::json::object, boost::json::object> member(std::string& code);
-            std::pair<boost::json::object, boost::json::object> elw_price(std::string& code);
-            std::pair<boost::json::object, boost::json::object> stock_chartprice(std::string& code, std::string& start, std::string& end, std::string period="D");
-            std::pair<boost::json::object, boost::json::object> index_chartprice(std::string& code, std::string& start, std::string& end, std::string period="D");
-            std::pair<boost::json::object, boost::json::object> price_at_time(std::string& code, std::string& time);
-            std::pair<boost::json::object, boost::json::object> ccnl_overtime(std::string& code);
-            std::pair<boost::json::object, boost::json::object> price_overtime_daily(std::string& code);
-            std::pair<boost::json::object, boost::json::object> minute_price(std::string& code, std::string& time);
-            std::pair<boost::json::object, boost::json::object> stock_info(std::string& code, std::string& type);
-            std::pair<boost::json::object, boost::json::object> holiday(std::string& date);
-            std::pair<boost::json::object, boost::json::object> foreign_and_institution(std::string& code, std::string sort="1", std::string buy_sell="0", std::string group="0");
-            std::pair<boost::json::object, boost::json::object> condition_search_list();
-            std::pair<boost::json::object, boost::json::object> condition_search(std::string& seq);
-            std::pair<boost::json::object, boost::json::object> program_trade(std::string& code);
-            std::pair<boost::json::object, boost::json::object> volume_rank(std::string& sort, std::string target="111111111", std::string min_price="", std::string max_price="", std::string min_volume="");
-            std::pair<boost::json::object, boost::json::object> foreign_institution_by_stock(std::string& code);
-            std::pair<boost::json::object, boost::json::object> index_minute_price(std::string& code, std::string period="60");
+            pair<json::object, json::object> price(string& code);
+            pair<json::object, json::object> ccnl(string& code);
+            pair<json::object, json::object> period_price(string& code, string period="D");
+            pair<json::object, json::object> ask_ccnl(string& code);
+            pair<json::object, json::object> investor(string& code);
+            pair<json::object, json::object> member(string& code);
+            pair<json::object, json::object> elw_price(string& code);
+            pair<json::object, json::object> stock_chartprice(string& code, string& start, string& end, string period="D");
+            pair<json::object, json::object> index_chartprice(string& code, string& start, string& end, string period="D");
+            pair<json::object, json::object> price_at_time(string& code, string& time);
+            pair<json::object, json::object> ccnl_overtime(string& code);
+            pair<json::object, json::object> price_overtime_daily(string& code);
+            pair<json::object, json::object> minute_price(string& code, string& time);
+            pair<json::object, json::object> stock_info(string& code, string& type);
+            pair<json::object, json::object> holiday(string& date);
+            pair<json::object, json::object> foreign_and_institution(string& code, string sort="1", string buy_sell="0", string group="0");
+            pair<json::object, json::object> condition_search_list();
+            pair<json::object, json::object> condition_search(string& seq);
+            pair<json::object, json::object> program_trade(string& code);
+            pair<json::object, json::object> volume_rank(string& sort, string target="111111111", string min_price="", string max_price="", string min_volume="");
+            pair<json::object, json::object> foreign_institution_by_stock(string& code);
+            pair<json::object, json::object> index_minute_price(string& code, string period="60");
 
             // Realtime
 
-            std::pair<boost::json::object, boost::json::object> conclude_price(net::websocket& ws_client, bool attach, std::string& code);
-            std::pair<boost::json::object, boost::json::object> asking_price(net::websocket& ws_client, bool attach, std::string& code);
-            std::pair<boost::json::object, boost::json::object> conclude_notify(net::websocket& ws_client, bool attach);
+            pair<json::object, json::object> conclude_price(net::websocket& ws_client, bool attach, string& code);
+            pair<json::object, json::object> asking_price(net::websocket& ws_client, bool attach, string& code);
+            pair<json::object, json::object> conclude_notify(net::websocket& ws_client, bool attach);
         };
 
+        namespace overseas {
+            enum market {
+                us_nasd,
+                us_nyse,
+                us_amex,
+                jp_tkse,
+                hk_sehk,
+                ch_shaa,
+                ch_szaa,
+                vn_hase,
+                vn_vnse,
+            };
+            extern string market_code[];
+            extern string exchan_code[];
 
+            // Order
+            
+            pair<json::object, json::object> order(bool buy, overseas::market market, string& code, int qty, int price, string div="00");
+            pair<json::object, json::object> revise_cancel(bool revise_cancel, overseas::market market, string& code, string& order, int qty=0, int price=0);
+            pair<json::object, json::object> order_reserve(bool buy, overseas::market market, string& code, int qty, int price, string div="00", string order_date="", bool cancel=false, string order_num="");
+            pair<json::object, json::object> stock_balance(overseas::market market, string cont_fk200="", string cont_nk200="");
+            pair<json::object, json::object> order_after_closed(bool buy, overseas::market market, string& code, int qty, int price);
+            pair<json::object, json::object> revise_cancel_after_closed(bool revise_cancel, overseas::market market, string& code, string& order, int qty, int price);
+            pair<json::object, json::object> cancel_reserve(string& order_date, string& order_num);
+            pair<json::object, json::object> period_profit_loss(string& start_date, string& end_date, string currency="", string cont_fk200="", string cont_nk200="");
+
+            // Inquire
+            pair<json::object, json::object> ccnl(overseas::market market, string& code, bool after_close);
+            pair<json::object, json::object> period_price(overseas::market market, string& code, string& period, string date="", string cont="", bool after_close=false);
+            pair<json::object, json::object> chartprice(string& div, string& code, string& period, string& start_date, string& end_date);
+            pair<json::object, json::object> condition_search(overseas::market market, int condition_num, int start, int end);
+            pair<json::object, json::object> settlement(string& date);
+            pair<json::object, json::object> price(overseas::market market, string& code);
+            pair<json::object, json::object> minute_price(overseas::market market, string& code, string period="1");
+            pair<json::object, json::object> minute_index(string& div, string& code, string time_div="0");
+
+            // Realtime
+
+
+        };
     };
 };

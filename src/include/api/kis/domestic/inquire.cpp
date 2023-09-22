@@ -1,6 +1,6 @@
 #include "../../api.hpp"
 
-using namespace std;
+using namespace api::kis;
 
 // api::kis::domestic namespace, Inquire functions ------------------------------------------------
 
@@ -8,12 +8,12 @@ using namespace std;
  * Domestic: Inquire price.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::price(string& code) {
+pair<json::object, json::object> domestic::price(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-price";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010100";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -24,12 +24,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::price(string&
  * Domestic: Inquire concluded price.
  * @param {string&} code: stock code
  */ 
-pair<boost::json::object, boost::json::object> api::kis::domestic::ccnl(string& code) {
+pair<json::object, json::object> domestic::ccnl(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-ccnl";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010300";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -41,12 +41,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::ccnl(string& 
  * @param {string&} code: stock code
  * @param {string} period: day(default)="D", month="M", year="Y"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::period_price(string& code, string period) {
+pair<json::object, json::object> domestic::period_price(string& code, string period) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-daily-price";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010400";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
         {"FID_PERIOD_DIV_CODE", period},
@@ -59,12 +59,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::period_price(
  * Domestic: Inquire asking price and expect conclude price.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::ask_ccnl(string& code) {
+pair<json::object, json::object> domestic::ask_ccnl(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-asking-price-exp-ccn";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010200";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -75,12 +75,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::ask_ccnl(stri
  * Domestic: Inquire stock's inverstor.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::investor(string& code) {
+pair<json::object, json::object> domestic::investor(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-investor";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010900";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -91,12 +91,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::investor(stri
  * Domestic: Inquire stock's member companies.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::member(string& code) {
+pair<json::object, json::object> domestic::member(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-member";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST01010600";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -107,12 +107,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::member(string
  * Domestic: Inquire elw price.
  * @param {string&} code: elw code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::elw_price(string& code) {
+pair<json::object, json::object> domestic::elw_price(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-investor";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKEW15010000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "W"},
         {"FID_INPUT_ISCD", code},
     };
@@ -126,12 +126,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::elw_price(str
  * @param {string&} end: end date ex) "20230919"
  * @param {string} period: day(default)="D", week="W", month="M", year="Y"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::stock_chartprice(string& code, string& start, string& end, string period) {
+pair<json::object, json::object> domestic::stock_chartprice(string& code, string& start, string& end, string period) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST03010100";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
         {"FID_INPUT_DATE_1", start},
@@ -149,12 +149,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::stock_chartpr
  * @param {string&} end: end date ex) "20230919"
  * @param {string} period: day(default)="D", week="W", month="M", year="Y"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::index_chartprice(string& code, string& start, string& end, string period) {
+pair<json::object, json::object> domestic::index_chartprice(string& code, string& start, string& end, string period) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-daily-indexchartprice";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKUP03500100";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "U"},
         {"FID_INPUT_ISCD", code},
         {"FID_INPUT_DATE_1", start},
@@ -170,12 +170,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::index_chartpr
  * @param {string&} code: stock code
  * @param {string&} time: time ex) "101112" is HHMMSS
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::price_at_time(string& code, string& time) {
+pair<json::object, json::object> domestic::price_at_time(string& code, string& time) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-time-itemconclusion";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPST01060000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
         {"FID_INPUT_HOUR_1", time},
@@ -187,12 +187,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::price_at_time
  * Domestic: Inquire concluded price after market closed.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::ccnl_overtime(string& code) {
+pair<json::object, json::object> domestic::ccnl_overtime(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-time-overtimeconclusion";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPST02310000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
         {"FID_HOUR_CLS_CODE", "1"},
@@ -204,12 +204,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::ccnl_overtime
  * Domestic: Inquire daily price after market closed.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::price_overtime_daily(string& code) {
+pair<json::object, json::object> domestic::price_overtime_daily(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-daily-overtimeprice";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPST02320000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
     };
@@ -221,12 +221,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::price_overtim
  * @param {string&} code: code
  * @param {string&} time: if code is stocks, then "101112" is HHMMSS. Else code is index, then "60" or "120", that is period secs from now to past.
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::minute_price(string& code, string& time) {
+pair<json::object, json::object> domestic::minute_price(string& code, string& time) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKST03010200";
-    boost::json::object params = {
+    json::object params = {
         {"FID_ETC_CLS_CODE", ""},
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_INPUT_ISCD", code},
@@ -241,12 +241,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::minute_price(
  * @param {string&} code: stock code
  * @param {string&} type: stock type ex) stock: "300", NASDAQ: "512" ...
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::stock_info(string& code, string& type) {
+pair<json::object, json::object> domestic::stock_info(string& code, string& type) {
     string path = "/uapi/domestic-stock/v1/quotations/search-info";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "CTPF1604R";
-    boost::json::object params = {
+    json::object params = {
         {"PDNO", code},
         {"PRDT_TYPE_CD", type},
     };
@@ -257,12 +257,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::stock_info(st
  * Domestic: Inquire holiday
  * @param {string&} date: inquire after this value. ex) "20230919"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::holiday(string& date) {
+pair<json::object, json::object> domestic::holiday(string& date) {
     string path = "/uapi/domestic-stock/v1/quotations/chk-holiday";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "CTCA0903R";
-    boost::json::object params = {
+    json::object params = {
         {"BASS_DT", date},
         {"CTX_AREA_NK", ""},
         {"CTX_AREA_FK", ""},
@@ -277,12 +277,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::holiday(strin
  * @param {string} buy_sell: buy(default)="0", sell="1"
  * @param {string} group: total(default)="0", foreign="1", institution="2", etc="3"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::foreign_and_institution(string& code, string sort, string buy_sell, string group) {
+pair<json::object, json::object> domestic::foreign_and_institution(string& code, string sort, string buy_sell, string group) {
     string path = "/uapi/domestic-stock/v1/quotations/foreign-institution-total";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPTJ04400000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "V"},
         {"FID_COND_SCR_DIV_CODE", "16449"},
         {"FID_INPUT_ISCD", code},
@@ -296,12 +296,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::foreign_and_i
 /**
  * Domestic: Get list of search by condition.
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::condition_search_list() {
+pair<json::object, json::object> domestic::condition_search_list() {
     string path = "/uapi/domestic-stock/v1/quotations/psearch-title";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "HHKST03900300";
-    boost::json::object params = {
+    json::object params = {
         {"user_id", api::kis::htsID},
     };
     return api::kis::get(path, header, params);
@@ -309,14 +309,14 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::condition_sea
 
 /**
  * Domestic: Get result of search by condition.
- * @param {string&} seq: output["seq"] of result of api::kis::domestic::condition_search_list
+ * @param {string&} seq: output["seq"] of result of domestic::condition_search_list
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::condition_search(string& seq) {
+pair<json::object, json::object> domestic::condition_search(string& seq) {
     string path = "/uapi/domestic-stock/v1/quotations/psearch-result";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "HHKST03900400";
-    boost::json::object params = {
+    json::object params = {
         {"user_id", api::kis::htsID},
         {"seq", seq},
     };
@@ -327,12 +327,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::condition_sea
  * Domestic: Inquire stock's program trading trends.
  * @param {string&} code: stock code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::program_trade(string& code) {
+pair<json::object, json::object> domestic::program_trade(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/program-trade-by-stock";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPPG04650100";
-    boost::json::object params = {
+    json::object params = {
         {"fid_input_iscd", code},
     };
     return api::kis::get(path, header, params);
@@ -346,12 +346,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::program_trade
  * @param {string} max_price: maximum price, default="", no limit.
  * @param {string} min_volume: minimum volume, default="", no limit.
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::volume_rank(string& sort, string target, string min_price, string max_price, string min_volume) {
+pair<json::object, json::object> domestic::volume_rank(string& sort, string target, string min_price, string max_price, string min_volume) {
     string path = "/uapi/domestic-stock/v1/quotations/volume-rank";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHPST01710000";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "J"},
         {"FID_COND_SCR_DIV_CODE", "20171"},
         {"FID_INPUT_ISCD", "0000"},
@@ -371,12 +371,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::volume_rank(s
  * Domestic: Inquire estimate trend of foreign and institution about stock.
  * @param {string&} code: stocke code
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::foreign_institution_by_stock(string& code) {
+pair<json::object, json::object> domestic::foreign_institution_by_stock(string& code) {
     string path = "/uapi/domestic-stock/v1/quotations/investor-trend-estimate";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "HHPTJ04160200";
-    boost::json::object params = {
+    json::object params = {
         {"MKSC_SHRN_ISCD", code},
     };
     return api::kis::get(path, header, params);
@@ -387,12 +387,12 @@ pair<boost::json::object, boost::json::object> api::kis::domestic::foreign_insti
  * @param {string&} code: index code
  * @param {string} period: 1 min="30" or "60", 10 min="600", 1 hour="3600"
  */
-pair<boost::json::object, boost::json::object> api::kis::domestic::index_minute_price(string& code, string period) {
+pair<json::object, json::object> domestic::index_minute_price(string& code, string period) {
     string path = "/uapi/domestic-stock/v1/quotations/inquire-time-indexchartprice";
     
-    boost::json::object header = api::kis::default_tr_header;
+    json::object header = api::kis::default_tr_header;
     header["tr_id"] = "FHKUP03500200";
-    boost::json::object params = {
+    json::object params = {
         {"FID_COND_MRKT_DIV_CODE", "U"},
         {"FID_INPUT_ISCD", code},
         {"FID_INPUT_HOUR_1", period},

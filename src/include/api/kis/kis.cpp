@@ -45,7 +45,53 @@ boost::json::object api::kis::default_ws_header = {
     {"tr_type", ""},
 };
 
-// Initialize user data.
+string api::kis::overseas::market_code[] = {
+    // us
+    "NASD", // nasdaq
+    "NYSE", // newyork
+    "AMEX", // amex
+    // japan
+    "TKSE",
+    // hongkong
+    "SEHK",
+    // china
+    "SHAA", // shanghai
+    "SZAA", // simchun
+    // vietnam
+    "HASE", // hanoi
+    "VNSE"  // hochimin
+};
+
+string api::kis::overseas::exchan_code[] = {
+    // us
+    "NAS",
+    "NYS",
+    "AMS",
+    // japan
+    "TSE",
+    // hongkong
+    "HKS",
+    // china
+    "SHS",
+    "SZS",
+    // vietnam
+    "HSX",
+    "HNX",
+
+    "SHI", // 상해 지수
+    "SZI", // 심천 지수
+
+    // us after close
+    "BAQ",
+    "BAY",
+    "BAA",
+};
+
+/**
+ * Initialize user data.
+ * @param {int} argc: argc of main function. number of program arguments.
+ * @param {char*[]} argv: argv of main function. string list of program arguments.
+ */
 void api::kis::init(int argc, char *argv[]) {
     if(argc < 2) {
         fprintf(stderr, "*** Provide user data ***\n<HTS ID>\n<CANO>\n<CANO2>\n<App Key>\n<App Secret>\n");
@@ -72,7 +118,10 @@ void api::kis::init(int argc, char *argv[]) {
     api::kis::default_tr_header["appsecret"] = api::kis::appsecret;
 }
 
-// Show user's data. if parameter is true, then show secret data.
+/**
+ * Show user's data.
+ * @param {bool} secret: false(default)=don't show secret datas(appkey, appsecret, token, approval). true=show everything.
+ */
 void api::kis::show_user(bool secret) {
     cout << "┌-------------------------------------------" << endl;
     cout << "| HTS ID: " + api::kis::htsID << endl;
@@ -86,13 +135,23 @@ void api::kis::show_user(bool secret) {
     cout << "└-------------------------------------------" << endl;
 }
 
-// Abstract of net::http::post for KIS Developers API. Return header and body pair.
+/**
+ * Abstract of net::http::post for KIS Developers API. Return header and body pair.
+ * @param {string&} path: path of url. This is inserted to packet header.
+ * @param {boost::json::object&} header: header object with json type.
+ * @param {boost::json::object&} body: always json type to send.
+ */
 pair<boost::json::object, boost::json::object> api::kis::post(string& path, boost::json::object& header, boost::json::object& body) {
     string str = net::https::post(api::kis::domain, api::kis::port, path, header, body);
     return net::packet_split(str);
 }
 
-// Abstract of net::http::get for KIS Developers API. Return header and body pair.
+/**
+ * Abstract of net::http::get for KIS Developers API. Return header and body pair.
+ * @param {string&} path: path of url. This is inserted to packet header.
+ * @param {boost::json::object&} header: header object with json type.
+ * @param {boost::json::object&} body: always json type to send.
+ */
 pair<boost::json::object, boost::json::object> api::kis::get(string& path, boost::json::object& header, boost::json::object& params) {
     string str = net::https::get(api::kis::domain, api::kis::port, path, header, params);
     return net::packet_split(str);
@@ -103,7 +162,9 @@ pair<boost::json::object, boost::json::object> api::kis::get(string& path, boost
 
 // api::kis::oauth namespace ----------------------------------------------------------------------
 
-// Request and store Realtime(Web socket) approval key.
+/**
+ * Request and store Realtime(Web socket) approval key.
+ */
 void api::kis::oauth::approval() {
     string path = "/oauth2/Approval";
     boost::json::object header = api::kis::default_header;
@@ -117,7 +178,10 @@ void api::kis::oauth::approval() {
     api::kis::default_ws_header["approval_key"] = api::kis::approval;
 }
 
-// Request and store access token.
+/**
+ * Request and store access token.
+ * @param {bool} revoke: false(default)=request token. true=revoke token.
+ */
 void api::kis::oauth::token(bool revoke) {
     string path = revoke ? "/oauth2/revokeP" : "/oauth2/tokenP";
     boost::json::object header = api::kis::default_header;
@@ -140,6 +204,12 @@ void api::kis::oauth::token(bool revoke) {
     }
 }
 
+/**
+ * Websocket api: send header and body. Transform header and body to appropriate form to fit api::kis
+ * @param {net::websocket&} ws_client: web socket client
+ * @param {boost::json::object&} header: header
+ * @param {boost::json::object&} body: body
+*/
 pair<boost::json::object, boost::json::object> api::kis::send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body) {
     boost::json::value input = {
         {"input", body},
