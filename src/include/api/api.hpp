@@ -103,6 +103,9 @@ namespace api {
             extern string market_code[];
             extern string exchan_code[];
 
+            pair<json::object, json::object> buy(overseas::market market, string& code, int qty, int price);
+            pair<json::object, json::object> sell(overseas::market market, string& code, int qty, int price);
+
             // Order
             
             pair<json::object, json::object> order(bool buy, overseas::market market, string& code, int qty, int price, string div="00");
@@ -125,6 +128,11 @@ namespace api {
             pair<json::object, json::object> minute_index(string& div, string& code, string time_div="0");
 
             // Realtime
+
+            pair<json::object, json::object> conclude_price(net::websocket& ws_client, bool attach, overseas::market market, string& code, bool after_close=false);
+            pair<json::object, json::object> asking_price_asia(net::websocket& ws_client, bool attach, overseas::market market, string& code);
+            pair<json::object, json::object> conclude_notify(net::websocket& ws_client, bool attach);
+            pair<json::object, json::object> asking_price_us(net::websocket& ws_client, bool attach, overseas::market market, string& code, bool after_close=false);
 
 
         };

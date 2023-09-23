@@ -5,6 +5,28 @@ using namespace api::kis;
 // api::kis::overseas namespace, Order functions --------------------------------------------------
 
 /**
+ * Overseas: Buy stock.
+ * @param {overseas::market} market: which nation's market(us_nasd, us_nyse, ns_amex, jp_tkse, ch_shaa, ch_szaa, hk_sehk, vn_hase, vn_vnse).: 
+ * @param {string&} code: stock code
+ * @param {int} qty: quantity
+ * @param {int} price: default=0, then buy with market price. Else, buy with specified price.
+*/
+pair<json::object, json::object> overseas::buy(overseas::market market, string& code, int qty, int price) {
+    return overseas::order(true, market, code, qty, price);
+}
+
+/**
+ * Overseas: Sell stock.
+ * @param {overseas::market} market: which nation's market(us_nasd, us_nyse, ns_amex, jp_tkse, ch_shaa, ch_szaa, hk_sehk, vn_hase, vn_vnse).: 
+ * @param {string&} code: stock code
+ * @param {int} qty: quantity
+ * @param {int} price: default=0, then buy with market price. Else, buy with specified price.
+*/
+pair<json::object, json::object> overseas::sell(overseas::market market, string& code, int qty, int price) {
+    return overseas::order(false, market, code, qty, price);
+}
+
+/**
  * Overseas: Order stock
  * @param {bool} buy: true=buy, false=sell
  * @param {overseas::market} market: which nation's market(us_nasd, us_nyse, ns_amex, jp_tkse, ch_shaa, ch_szaa, hk_sehk, vn_hase, vn_vnse).
@@ -273,7 +295,7 @@ pair<json::object, json::object> overseas::stock_balance(overseas::market market
 
 
 /**
- * Overseas: Order us stock after closed(10AM ~ 16PM in korea).
+ * Overseas: Order us stock after closed(10AM ~ 4PM in korea).
  * @param {bool} buy: true=buy, false=sell
  * @param {overseas::market} market: which nation's market(us_nasd, us_nyse, ns_amex).
  * @param {string&} code: stock code
@@ -301,7 +323,7 @@ pair<json::object, json::object> overseas::order_after_closed(bool buy, overseas
 }
 
 /**
- * Overseas: Revise or cancel us stock order after closed(10AM ~ 16PM in korea).
+ * Overseas: Revise or cancel us stock order after closed(10AM ~ 4PM in korea).
  * @param {bool} revise_cancel: true=cancel, false=revise
  * @param {overseas::market} market: which nation's market(us_nasd, us_nyse, ns_amex).
  * @param {string&} code: stock code

@@ -10,8 +10,6 @@ using namespace api::kis;
  * @param {string&} code: stock code
 */
 pair<json::object, json::object> domestic::conclude_price(net::websocket& ws_client, bool attach, string& code) {
-    string path = "/tryitout/H0STCNT0";
-
     json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
     json::object body = {
@@ -27,8 +25,6 @@ pair<json::object, json::object> domestic::conclude_price(net::websocket& ws_cli
  * @param {string&} code: stock code
 */
 pair<json::object, json::object> domestic::asking_price(net::websocket& ws_client, bool attach, string& code) {
-    string path = "/tryitout/H0STASP0";
-
     json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
     json::object body = {
@@ -44,8 +40,6 @@ pair<json::object, json::object> domestic::asking_price(net::websocket& ws_clien
  * @param {string&} code: stock code
 */
 pair<json::object, json::object> domestic::conclude_notify(net::websocket& ws_client, bool attach) {
-    string path = "/tryitout/H0STCNI0";
-
     json::object header = api::kis::default_ws_header;
     header["tr_type"] = attach ? "1" : "2";
     json::object body = {
