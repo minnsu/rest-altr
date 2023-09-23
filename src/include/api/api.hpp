@@ -6,7 +6,10 @@ using namespace std;
 using namespace boost;
 
 namespace api {
+    // kis directory
     namespace kis {
+        // kis.cpp
+
         extern string htsID;
         extern string CANO;
         extern string CANO2;
@@ -39,12 +42,13 @@ namespace api {
             void token(bool revoke=false);
         };
 
+        // domestic directory
         namespace domestic {
+            // order.cpp
+
             pair<json::object, json::object> buy(string& code, int qty, int price=0);
             pair<json::object, json::object> sell(string& code, int qty, int price=0);
 
-            // Order
-            
             pair<json::object, json::object> order_cash(bool buy, string& code, int qty, int price=0, string div="01");
             pair<json::object, json::object> order_credit(bool buy, string& code, string& crd_type, string& loan_date, int qty, int price=0, string div="01");
             pair<json::object, json::object> revise_cancel(bool revise_cancel, bool remain_all, string& order_num, int qty, int price=0, string div="01");
@@ -56,7 +60,7 @@ namespace api {
             pair<json::object, json::object> profit_loss(string cont_fk100="", string cont_nk100="");
             pair<json::object, json::object> account_balance();
 
-            // Inquire
+            // inquire.cpp
 
             pair<json::object, json::object> price(string& code);
             pair<json::object, json::object> ccnl(string& code);
@@ -81,13 +85,14 @@ namespace api {
             pair<json::object, json::object> foreign_institution_by_stock(string& code);
             pair<json::object, json::object> index_minute_price(string& code, string period="60");
 
-            // Realtime
+            // realtime.cpp
 
             pair<json::object, json::object> conclude_price(net::websocket& ws_client, bool attach, string& code);
             pair<json::object, json::object> asking_price(net::websocket& ws_client, bool attach, string& code);
             pair<json::object, json::object> conclude_notify(net::websocket& ws_client, bool attach);
         };
 
+        // overseas directory
         namespace overseas {
             enum market {
                 us_nasd,
@@ -97,16 +102,21 @@ namespace api {
                 hk_sehk,
                 ch_shaa,
                 ch_szaa,
-                vn_hase,
                 vn_vnse,
+                vn_hase,
             };
+
+            // overseas.cpp
+
             extern string market_code[];
             extern string exchan_code[];
 
+            overseas::market code2market(string& code);
+
+            // order.cpp
+
             pair<json::object, json::object> buy(overseas::market market, string& code, int qty, int price);
             pair<json::object, json::object> sell(overseas::market market, string& code, int qty, int price);
-
-            // Order
             
             pair<json::object, json::object> order(bool buy, overseas::market market, string& code, int qty, int price, string div="00");
             pair<json::object, json::object> revise_cancel(bool revise_cancel, overseas::market market, string& code, string& order, int qty=0, int price=0);
@@ -117,7 +127,8 @@ namespace api {
             pair<json::object, json::object> cancel_reserve(string& order_date, string& order_num);
             pair<json::object, json::object> period_profit_loss(string& start_date, string& end_date, string currency="", string cont_fk200="", string cont_nk200="");
 
-            // Inquire
+            // inquire.cpp
+
             pair<json::object, json::object> ccnl(overseas::market market, string& code, bool after_close);
             pair<json::object, json::object> period_price(overseas::market market, string& code, string& period, string date="", string cont="", bool after_close=false);
             pair<json::object, json::object> chartprice(string& div, string& code, string& period, string& start_date, string& end_date);
@@ -127,7 +138,7 @@ namespace api {
             pair<json::object, json::object> minute_price(overseas::market market, string& code, string period="1");
             pair<json::object, json::object> minute_index(string& div, string& code, string time_div="0");
 
-            // Realtime
+            // realtime.cpp
 
             pair<json::object, json::object> conclude_price(net::websocket& ws_client, bool attach, overseas::market market, string& code, bool after_close=false);
             pair<json::object, json::object> asking_price_asia(net::websocket& ws_client, bool attach, overseas::market market, string& code);

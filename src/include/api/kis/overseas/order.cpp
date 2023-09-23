@@ -11,8 +11,8 @@ using namespace api::kis;
  * @param {int} qty: quantity
  * @param {int} price: default=0, then buy with market price. Else, buy with specified price.
 */
-pair<json::object, json::object> overseas::buy(overseas::market market, string& code, int qty, int price) {
-    return overseas::order(true, market, code, qty, price);
+pair<json::object, json::object> overseas::buy(string& code, int qty, int price) {
+    return overseas::order(true, overseas::code2market(code), code, qty, price);
 }
 
 /**
@@ -22,8 +22,8 @@ pair<json::object, json::object> overseas::buy(overseas::market market, string& 
  * @param {int} qty: quantity
  * @param {int} price: default=0, then buy with market price. Else, buy with specified price.
 */
-pair<json::object, json::object> overseas::sell(overseas::market market, string& code, int qty, int price) {
-    return overseas::order(false, market, code, qty, price);
+pair<json::object, json::object> overseas::sell(string& code, int qty, int price) {
+    return overseas::order(false, overseas::code2market(code), code, qty, price);
 }
 
 /**

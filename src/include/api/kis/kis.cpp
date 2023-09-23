@@ -45,48 +45,6 @@ boost::json::object api::kis::default_ws_header = {
     {"tr_type", ""},
 };
 
-string api::kis::overseas::market_code[] = {
-    // us
-    "NASD", // nasdaq
-    "NYSE", // newyork
-    "AMEX", // amex
-    // japan
-    "TKSE",
-    // hongkong
-    "SEHK",
-    // china
-    "SHAA", // shanghai
-    "SZAA", // simchun
-    // vietnam
-    "HASE", // hanoi
-    "VNSE"  // hochimin
-};
-
-string api::kis::overseas::exchan_code[] = {
-    // us
-    "NAS",
-    "NYS",
-    "AMS",
-    // japan
-    "TSE",
-    // hongkong
-    "HKS",
-    // china
-    "SHS",
-    "SZS",
-    // vietnam
-    "HSX",
-    "HNX",
-
-    "SHI", // 상해 지수
-    "SZI", // 심천 지수
-
-    // us after close
-    "BAQ",
-    "BAY",
-    "BAA",
-};
-
 /**
  * Initialize user data.
  * @param {int} argc: argc of main function. number of program arguments.
@@ -157,8 +115,35 @@ pair<boost::json::object, boost::json::object> api::kis::get(string& path, boost
     return net::packet_split(str);
 }
 
-// ------------------------------------------------------------------------------------------------
+// api::kis websocket send/read -------------------------------------------------------------------
 
+/**
+ * Websocket api: send header and body. Transform header and body to appropriate form to fit api::kis
+ * @param {net::websocket&} ws_client: web socket client
+ * @param {boost::json::object&} header: header
+ * @param {boost::json::object&} body: body
+*/
+pair<boost::json::object, boost::json::object> api::kis::send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body) {
+    boost::json::value input = {
+        {"input", body},
+    };
+    boost::json::object packet = {
+        {"header", header},
+        {"body", input}
+    };
+
+    string packet_str = boost::json::serialize(packet);    
+    string response_str = ws_client.send(packet_str);
+    
+    boost::json::object response = boost::json::parse(response_str).as_object();
+    return {response["header"].as_object(), response["body"].as_object()};
+
+}
+string api::kis::read_ws(net::websocket& ws_client) {
+    return ws_client.read();
+}
+
+// ------------------------------------------------------------------------------------------------
 
 // api::kis::oauth namespace ----------------------------------------------------------------------
 
@@ -202,32 +187,6 @@ void api::kis::oauth::token(bool revoke) {
         api::kis::token = response.second["access_token"].as_string();
         api::kis::default_tr_header["authorization"] = "Bearer " + api::kis::token;
     }
-}
-
-/**
- * Websocket api: send header and body. Transform header and body to appropriate form to fit api::kis
- * @param {net::websocket&} ws_client: web socket client
- * @param {boost::json::object&} header: header
- * @param {boost::json::object&} body: body
-*/
-pair<boost::json::object, boost::json::object> api::kis::send_ws(net::websocket& ws_client, boost::json::object& header, boost::json::object& body) {
-    boost::json::value input = {
-        {"input", body},
-    };
-    boost::json::object packet = {
-        {"header", header},
-        {"body", input}
-    };
-
-    string packet_str = boost::json::serialize(packet);    
-    string response_str = ws_client.send(packet_str);
-    
-    boost::json::object response = boost::json::parse(response_str).as_object();
-    return {response["header"].as_object(), response["body"].as_object()};
-
-}
-string api::kis::read_ws(net::websocket& ws_client) {
-    return ws_client.read();
 }
 
 // ------------------------------------------------------------------------------------------------

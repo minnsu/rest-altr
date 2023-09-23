@@ -16,25 +16,24 @@ int main(int argc, char *argv[]) {
 
     std::string code = "AAPL";
     bool attach = true;
-    
 
-    std::pair<boost::json::object, boost::json::object> response = api::kis::overseas::buy(api::kis::overseas::market::us_nasd, code, 1, 180);
-    std::cout << boost::json::serialize(response.first) << std::endl;
-    std::cout << boost::json::serialize(response.second) << std::endl;
+    // std::pair<boost::json::object, boost::json::object> response = api::kis::overseas::buy(api::kis::overseas::market::us_nasd, code, 1, 180);
+    // std::cout << boost::json::serialize(response.first) << std::endl;
+    // std::cout << boost::json::serialize(response.second) << std::endl;
 
-    response = api::kis::overseas::asking_price_us(ws_client, attach, api::kis::overseas::market::us_nasd, code);
-    std::cout << boost::json::serialize(response.first) << std::endl;
-    std::cout << boost::json::serialize(response.second) << std::endl;
+    // response = api::kis::overseas::asking_price_us(ws_client, attach, api::kis::overseas::market::us_nasd, code);
+    // std::cout << boost::json::serialize(response.first) << std::endl;
+    // std::cout << boost::json::serialize(response.second) << std::endl;
     
-    while(true) {
-        std::string response = api::kis::read_ws(ws_client);
-        if(response[0] == '{') {
-            boost::json::object json = boost::json::parse(response).as_object();
-            if(json["header"].as_object()["tr_id"] == "PINGPONG")
-                ws_client.pong(response);
-        }
-        std::cout << response << std::endl;
-    }
+    // while(true) {
+    //     std::string response = api::kis::read_ws(ws_client);
+    //     if(response[0] == '{') {
+    //         boost::json::object json = boost::json::parse(response).as_object();
+    //         if(json["header"].as_object()["tr_id"] == "PINGPONG")
+    //             ws_client.pong(response);
+    //     }
+    //     std::cout << response << std::endl;
+    // }
 
     return 0;
 }
