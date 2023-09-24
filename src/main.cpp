@@ -14,12 +14,14 @@ int main(int argc, char *argv[]) {
 
     api::kis::show_user(true);
 
-    std::string code = "AAPL";
+    std::string code = "005930";
     bool attach = true;
+    std::string start_date = "20230105";
+    std::string end_date = "20230401";
 
-    // std::pair<boost::json::object, boost::json::object> response = api::kis::overseas::buy(api::kis::overseas::market::us_nasd, code, 1, 180);
-    // std::cout << boost::json::serialize(response.first) << std::endl;
-    // std::cout << boost::json::serialize(response.second) << std::endl;
+    std::pair<boost::json::object, boost::json::object> response = api::kis::domestic::stock_chartprice(code,start_date,end_date);
+    std::cout << boost::json::serialize(response.first) << std::endl;
+    std::cout << boost::json::serialize(response.second["output1"]) << std::endl;
 
     // response = api::kis::overseas::asking_price_us(ws_client, attach, api::kis::overseas::market::us_nasd, code);
     // std::cout << boost::json::serialize(response.first) << std::endl;

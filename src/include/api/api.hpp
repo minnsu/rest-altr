@@ -115,8 +115,8 @@ namespace api {
 
             // order.cpp
 
-            pair<json::object, json::object> buy(overseas::market market, string& code, int qty, int price);
-            pair<json::object, json::object> sell(overseas::market market, string& code, int qty, int price);
+            pair<json::object, json::object> buy(string& code, int qty, int price);
+            pair<json::object, json::object> sell(string& code, int qty, int price);
             
             pair<json::object, json::object> order(bool buy, overseas::market market, string& code, int qty, int price, string div="00");
             pair<json::object, json::object> revise_cancel(bool revise_cancel, overseas::market market, string& code, string& order, int qty=0, int price=0);
