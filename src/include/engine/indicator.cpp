@@ -1,13 +1,13 @@
 #include "engine.hpp"
 
-int RSI(string& code) {
+float indicator::RSI(string& code) {
     return 0;
 }
 
-int PER(string& code) {
+float indicator::PER(string& code) {
     return 0;
 }
 
-int EPS(string& code) {
+float indicator::PBR(string& code) {
     return 0;
 }

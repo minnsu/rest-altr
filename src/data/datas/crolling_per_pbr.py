@@ -5,7 +5,6 @@ import pandas as pd
 gen_otp_url = "http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd"
 download_url = 'http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
 
-
 header = {'Referer': 'http://data.krx.co.kr/contents/MDC/MDI/mdiLoader'}
 default_otp_data = {
     # 'locale': 'ko_KR',
@@ -38,15 +37,28 @@ def croll_per_pbr_csv(date : str):
 from datetime import datetime
 import datetime as dt
 
-start_date = datetime(2020, 6, 1).date()
+file_name = 'kospi_2023.txt'
+start_date = datetime(2023, 9, 1).date()
 end_date = datetime.now().date()
+# end_date = datetime(2023, 12, 31).date()
 interval = dt.timedelta(days=1)
+
+
+stocks = dict()
 
 date = start_date
 while date <= end_date:
-    print(date)
+    print('{} ({} ~ {})\r'.format(date, start_date, end_date), end='')
     csv = croll_per_pbr_csv(str(date).replace('-', ''))
     date += interval
     if len(csv) == 0:
         continue
-    print(csv)
+    # print(csv.loc[:, ['종목코드', '종가', 'EPS', 'PER', 'BPS', 'PBR']])
+    stocks[str(date).replace('-', '')] = dict()
+    for i in range(len(csv)):
+        code = csv.iloc[i, 0]
+        stocks[str(date).replace('-', '')][code] = csv.iloc[i, [2,5,6,9,10]].tolist()
+
+f = open(file_name, 'w')
+f.write(str(stocks))
+f.close()
