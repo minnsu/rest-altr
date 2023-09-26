@@ -1,13 +1,13 @@
 #include "engine.hpp"
 
-float indicator::RSI(string& code) {
-    return 0;
-}
-
-float indicator::PER(string& code) {
-    return 0;
-}
-
-float indicator::PBR(string& code) {
-    return 0;
-}
+double indicator::PRICE;
+double indicator::PER;
+double indicator::PBR;
+double indicator::AVG_5;
+double indicator::AVG_20;
+double indicator::AVG_60;
+double indicator::RSI_9;
+double indicator::RSI_14;
+double indicator::RSI_28;
+double indicator::BOLLINGER_LOW;
+double indicator::BOLLINGER_HIGH;
