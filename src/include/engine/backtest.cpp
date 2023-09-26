@@ -1,7 +1,8 @@
-#include <iostream>
-#include <sstream>
-#include <fstream>
 #include <ctime>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 #include "engine.hpp"
 
@@ -101,29 +102,98 @@ void backtest::run(string& start, string& end, int cash, vector<string>& target_
     strptime(start.c_str(), "%Y%m%d", &tm_today);
 
     char print_day[128];
-    string today;
-    while(!tm_is_equal(tm_today, tm_end)) {
+    map<string, array<int, 3>> account; // {code, {qty, avg_price, current_price}}
+    vector<pair<string, pair<int, int>>> buy_list; // {code, {score, price}}, score must be +
+    vector<pair<string, pair<int, int>>> sell_list; // {code, {score, price}}, score must be -
+
+    int total_evaluate = cash;
+    float charge = 0.015;
+    float tax = 0.2;
+
+    for( ; !tm_is_equal(tm_today, tm_end) ; tm_inc(tm_today)) {
         strftime(print_day, sizeof(print_day), "%Y%m%d", &tm_today);
-        today = string(print_day);
-        cout << "Date: " + today << endl;
+        string today = string(print_day);
+        cout << "\nDate: " + today + "\n" << endl;
+        if(tm_today.tm_wday == 0) {
+            cout << "[ Today is Sunday. ]" << endl;
+            continue;
+        } else if(tm_today.tm_wday == 6) {
+            cout << "[ Today is Saturday. ]" << endl;
+            continue;
+        }
 
         for(auto it : target_list) {
             string code = it;
             if(!backtest::refresh(today, code))
                 break;
-            cout << "Stock code: " + code << endl;
-            int action = strategy::v0();
-            switch(action) {
-            case 0: // hold
-                break;
-            case 1: // buy
-                break;
-            case 2: // sell
-                break;
+            int score = strategy::v0();
+            if(score > 0)
+                buy_list.push_back({code, {score, indicator::PRICE}});
+            else if(score < 0)
+                sell_list.push_back({code, {score, indicator::PRICE}});
+            
+            auto have_stock = account.find(code);
+            if(have_stock != account.end()) {
+                account[code][2] = indicator::PRICE;
             }
         }
 
-        tm_inc(tm_today);
+        // Sort buy list and Buy
+        sort(buy_list.begin(), buy_list.end(), [](pair<string, pair<int, int>>& a, pair<string, pair<int, int>>& b){
+            return a.second.first >= b.second.first;
+        });
+        for(auto it : buy_list) {
+            int proper_qty = (total_evaluate / 5) / it.second.second; // distribute rate = 20% per stock
+            int require_money = it.second.second * proper_qty;
+            if(cash < require_money) {
+                proper_qty = cash / it.second.second;
+                require_money = it.second.second * proper_qty;
+                if(proper_qty == 0)
+                    break;
+            }
+            cash -= require_money * (1+charge);
+            cout << "BUY: [" + it.first + "]: " + to_string(it.second.second) + " x " + to_string(proper_qty) << endl;
+            auto code = account.find(it.first);
+            if(code != account.end()) {
+                // already have that stocks. just add to
+                int before_qty = account[it.first][0];
+                account[it.first][1] = (account[it.first][1] * before_qty + require_money) / (before_qty + proper_qty);
+                account[it.first][0] += proper_qty;
+            } else {
+                // Add to account
+                account[it.first][0] = proper_qty;
+                account[it.first][1] = it.second.second;
+                account[it.first][2] = it.second.second;
+            }
+        }
+        // Sell if I have the stock in sell list.
+        for(auto it : sell_list) {
+            auto code = account.find(it.first);
+            if(code != account.end()) {
+                cout << "SELL: [" + it.first + "]: " + to_string(it.second.second) + " x " + to_string(code->second[0]) << endl;
+                cash += (float) (code->second[2] * code->second[0] * (1-tax-charge));
+                account.erase(code);
+            }
+        }
+
+        // print account with price
+        total_evaluate = cash;
+        cout << "┌----- Account --------------------------------------------------------------------┐" << endl;
+        for(auto it : account) {
+            cout << "| [" + it.first + "]"
+                + " - Qty: " + to_string(it.second[0])
+                + ", Avg price: " + to_string(it.second[1])
+                + ", Cur price: " + to_string(it.second[2])
+                + ", PL Rate: " + to_string((float) 100 * it.second[2] / it.second[1] - 100) + " %" << endl;
+            total_evaluate += it.second[0] * it.second[2];
+        }
+        cout << "| Cash: " + to_string(cash) << endl;
+        cout << "| Total account evaluation: " + to_string(total_evaluate) << endl;
+        cout << "└----------------------------------------------------------------------------------┘" << endl;
+
+        buy_list.clear();
+        sell_list.clear();
+        // sleep(1);
     }
 
 }

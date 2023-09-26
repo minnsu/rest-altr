@@ -27,9 +27,8 @@ namespace transaction {
 namespace backtest {
     void load_data(string path);
     extern boost::json::object year_data;
-
     bool refresh(string& date, string& code);
-
+    
     void run(string& start, string& end, int cash, vector<string>& target_list);
 };
 
