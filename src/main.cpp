@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "include/net/net.hpp"
@@ -13,10 +14,23 @@ int main(int argc, char *argv[]) {
 
     // api::kis::show_user(true);
 
-    std::string start = "20230901";
+    std::string start = "20230101";
     std::string end = "20230925";
 
-    std::vector<std::string> target_list = {"005930", "000660", "005380"};
+    std::ifstream kospi_file("./src/data/codes/KOSPI.txt");
+    string code;
+    std::vector<std::string> target_list;
+    while(getline(kospi_file, code)) {
+        target_list.push_back(code);
+    }
+    kospi_file.close();
+    std::ifstream kosdaq_file("./src/data/codes/KOSDAQ.txt");
+    while(getline(kosdaq_file, code)) {
+        target_list.push_back(code);
+    }
+    kosdaq_file.close();
+
+
     backtest::run(start, end, 10000000, target_list);
 
     return 0;

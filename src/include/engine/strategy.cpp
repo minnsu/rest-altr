@@ -30,5 +30,25 @@ int strategy::v0() {
     //     indicator::BOLLINGER_LOW,
     //     indicator::BOLLINGER_HIGH
     // );
-    return 1;
+    float score = 0;
+    
+    // PER
+    if(indicator::PER < 10)
+        score += 1 * (10 - indicator::PER);
+    else if(indicator::PER > 30)
+        score -= 1 * (indicator::PER / 10);
+    
+    // PBR
+    if(indicator::PBR > 3)
+        score -= 1 * (indicator::PBR * 2);
+    else if(indicator::PBR < 1.2)
+        score += 1 * (indicator::PBR * 5);
+    
+    // Moving average
+
+    // RSI
+
+    // Bollinger band
+
+    return (int) score;
 }

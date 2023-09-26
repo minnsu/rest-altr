@@ -20,15 +20,16 @@ namespace indicator {
 };
 
 namespace transaction {
-    void engine(vector<string>& target_list);
+    void run(vector<string>& target_list);
     void realtime(vector<string>& ccnl_list, vector<string>& ask_list);
 };
 
 namespace backtest {
     void load_data(string path);
-    extern boost::json::object year_data;
+    extern boost::json::object data_cache;
     bool refresh(string& date, string& code);
-    
+
+    extern vector<string> tr_log;
     void run(string& start, string& end, int cash, vector<string>& target_list);
 };
 

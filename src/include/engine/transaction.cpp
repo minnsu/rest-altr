@@ -1,6 +1,6 @@
 #include "engine.hpp"
 
-void transaction::engine(vector<string>& target_list) {
+void transaction::run(vector<string>& target_list) {
     
 }
 
