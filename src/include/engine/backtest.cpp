@@ -31,7 +31,7 @@ boost::json::object backtest::data_cache;
  * @param {string&} date: target date of data_cache. ex) "20230926"
  * @param {string&} code: target stock code to get data in above date.
 */
-bool backtest::refresh(string& date, string& code) {
+int backtest::refresh(string& date, string& code) { // TODO: rewrite the return type to int with error code, find date error and find stock error, date error -> break the loop, stock error -> continue the loop
     tm tm;
     strptime(date.c_str(), "%Y%m%d", &tm);
     if(tm.tm_year + 1900 != cur_year) {
@@ -40,10 +40,10 @@ bool backtest::refresh(string& date, string& code) {
     }
     
     if(backtest::data_cache.find(date) == backtest::data_cache.end())
-        return false;
+        return -1;
     boost::json::object day_data = backtest::data_cache[date].as_object();
     if(day_data.find(code) == day_data.end())
-        return false;
+        return -2;
     
     boost::json::array day_stock = day_data[code].as_array();
     indicator::PRICE = day_stock[0].as_int64();
@@ -58,7 +58,7 @@ bool backtest::refresh(string& date, string& code) {
     indicator::BOLLINGER_LOW = day_stock[11].as_double();
     indicator::BOLLINGER_HIGH = day_stock[12].as_double();
 
-    return true;
+    return 1;
 }
 
 /**
@@ -126,7 +126,7 @@ vector<string> backtest::tr_log;
 void buysell(map<string, array<int, 3>>& account, int& total_evaluate, int& cash, vector<pair<string, pair<int, int>>>& buy_list, vector<pair<string, pair<int, int>>>& sell_list) {
     float tax = 0.002;
     float charge = 0.00015;
-    float max_distribute_rate = 0.2;
+    float max_distribute_rate = 0.1;
 
     // Exceed the standard loss rate
     vector<string> rate_sell_list;
@@ -151,7 +151,7 @@ void buysell(map<string, array<int, 3>>& account, int& total_evaluate, int& cash
             backtest::tr_log.push_back("SELL: [" + it.first + "]: " + to_string(code->second[1]) + " -> " + to_string(it.second.second) + " x " + to_string(code->second[0]) + " => " + to_string(total_evaluate));
         }
     }
-    sell_list.clear();
+    sell_list.clear();    
     // Buy
     for(auto it : buy_list) {
         int proper_qty = (total_evaluate * max_distribute_rate) / it.second.second; // distribute rate = 20% per stock
@@ -166,12 +166,16 @@ void buysell(map<string, array<int, 3>>& account, int& total_evaluate, int& cash
         if(code != account.end()) {
             int before_qty = account[it.first][0];
             
+            // Already have stocks
+            if(before_qty * account[it.first][1] + required_money > total_evaluate * max_distribute_rate * 2) {
+                continue;
+            }
+            
             account[it.first][1] = (account[it.first][1] * before_qty + required_money) / (before_qty + proper_qty);
             account[it.first][0] += proper_qty;
-        } else {
-            // Add to account
+        } else // Add to account
             account[it.first] = {proper_qty, it.second.second, it.second.second};
-        }
+        
         cash -= (float) (required_money * (1+charge));
         backtest::tr_log.push_back("BUY: [" + it.first + "]: " + to_string(it.second.second) + " x " + to_string(proper_qty) + " => " + to_string(total_evaluate));
     }
@@ -180,9 +184,8 @@ void buysell(map<string, array<int, 3>>& account, int& total_evaluate, int& cash
 
 void refresh_account(map<string, array<int, 3>>& account, int& total_evaluate, int& cash) {
     total_evaluate = cash;
-    for(auto it : account) {
+    for(auto it : account)
         total_evaluate += it.second[0] * it.second[2];
-    }
 }
 
 void show_account(map<string, array<int, 3>>& account, int& total_evaluate, int& cash) {
@@ -205,11 +208,11 @@ void backtest::run(string& start, string& end, int cash, vector<string>& target_
     strptime(end.c_str(), "%Y%m%d", &tm_end);
     strptime(start.c_str(), "%Y%m%d", &tm_today);
 
-    char today_format[32];
-    string today;
+    char today_format[16];
     map<string, array<int, 3>> account; // {code, {qty, avg_price, current_price}}
     vector<pair<string, pair<int, int>>> buy_list; // {code, {score, price}}, score must be +
     vector<pair<string, pair<int, int>>> sell_list; // {code, {score, price}}, score must be -
+    string today;
 
     int total_evaluate = cash;
 
@@ -223,18 +226,22 @@ void backtest::run(string& start, string& end, int cash, vector<string>& target_
         }
 
         // refresh data for each stock and decide to action with score.
-        for(auto it : target_list) {
-            string code = it;
-            if(!backtest::refresh(today, code))
+        for(int idx = 0; idx < target_list.size(); idx++) {
+            string code = target_list[idx];
+            int ret = backtest::refresh(today, code);
+            if(ret == -1)
                 break;
+            else if(ret == -2)
+                continue;
+            
             int score = strategy::v0();
             if(score > 0)
                 buy_list.push_back({code, {score, indicator::PRICE}});
-            else if(score < 0)
-                sell_list.push_back({code, {score, indicator::PRICE}});
             
             if(account.find(code) != account.end()) {
                 account[code][2] = indicator::PRICE;
+                if(score < 0)
+                    sell_list.push_back({code, {score, indicator::PRICE}});
             }
         }
 
@@ -242,11 +249,11 @@ void backtest::run(string& start, string& end, int cash, vector<string>& target_
         sort(buy_list.begin(), buy_list.end(), [](pair<string, pair<int, int>>& a, pair<string, pair<int, int>>& b){
             return a.second.first >= b.second.first;
         });
+
         // print account with price
         refresh_account(account, total_evaluate, cash);
         buysell(account, total_evaluate, cash, buy_list, sell_list);
         
-        refresh_account(account, total_evaluate, cash);
         show_account(account, total_evaluate, cash);
     }
 

@@ -20,6 +20,7 @@ namespace indicator {
 };
 
 namespace transaction {
+    int refresh(string& code);
     void run(vector<string>& target_list);
     void realtime(vector<string>& ccnl_list, vector<string>& ask_list);
 };
@@ -27,9 +28,9 @@ namespace transaction {
 namespace backtest {
     void load_data(string path);
     extern boost::json::object data_cache;
-    bool refresh(string& date, string& code);
-
     extern vector<string> tr_log;
+
+    int refresh(string& date, string& code);
     void run(string& start, string& end, int cash, vector<string>& target_list);
 };
 

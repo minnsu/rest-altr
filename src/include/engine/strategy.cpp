@@ -34,21 +34,45 @@ int strategy::v0() {
     
     // PER
     if(indicator::PER < 10)
-        score += 1 * (10 - indicator::PER);
+        score += (10 - indicator::PER);
     else if(indicator::PER > 30)
         score -= 1 * (indicator::PER / 10);
     
     // PBR
-    if(indicator::PBR > 3)
-        score -= 1 * (indicator::PBR * 2);
-    else if(indicator::PBR < 1.2)
-        score += 1 * (indicator::PBR * 5);
+    if(indicator::PBR < 1.2)
+        score += (indicator::PBR * 4);
+    else if(indicator::PBR > 3)
+        score -= (indicator::PBR * 2);
     
     // Moving average
 
     // RSI
+    if(indicator::RSI_14 < 0.3)
+        score += (indicator::RSI_14 * 20);
+    else if(indicator::RSI_14 > 0.7)
+        score -= (indicator::RSI_14 * 10);
+    
+    if(indicator::RSI_9 < indicator::RSI_14 && indicator::RSI_14 < 0.3)
+        score += (indicator::RSI_9 * 20);
+    else if(indicator::RSI_9 > indicator::RSI_14 && indicator::RSI_14 > 0.7)
+        score -= (indicator::RSI_9 * 10);
 
     // Bollinger band
+    if(indicator::PRICE <= indicator::BOLLINGER_LOW)
+        score += 7;
+    else if(indicator::PRICE >= indicator::BOLLINGER_HIGH * 0.98)
+        score -= 7;
+    
+    if(indicator::BOLLINGER_HIGH - indicator::BOLLINGER_LOW < indicator::PRICE * 0.1) {
+        if(indicator::AVG_20 - indicator::BOLLINGER_LOW > indicator::PRICE - indicator::BOLLINGER_LOW)
+            score += 7;
+        else if(indicator::BOLLINGER_HIGH - indicator::AVG_20 > indicator::BOLLINGER_HIGH - indicator::PRICE)
+            score -= 7;
+    }
+
+    // Integrity Powerful
+    if(indicator::PRICE < indicator::BOLLINGER_LOW && indicator::RSI_14 < 0.3)
+        score += 10;
 
     return (int) score;
 }
