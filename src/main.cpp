@@ -14,16 +14,16 @@ int main(int argc, char *argv[]) {
 
     // api::kis::show_user(true);
 
-    std::string start = "20210101";
+    std::string start = "20230801";
     std::string end = "20230925";
 
     string code;
     std::vector<std::string> target_list;
-    // std::ifstream kospi_file("./src/data/codes/KOSPI.txt");
-    // while(getline(kospi_file, code)) {
-    //     target_list.push_back(code);
-    // }
-    // kospi_file.close();
+    std::ifstream kospi_file("./src/data/codes/KOSPI.txt");
+    while(getline(kospi_file, code)) {
+        target_list.push_back(code);
+    }
+    kospi_file.close();
     std::ifstream kosdaq_file("./src/data/codes/KOSDAQ.txt");
     while(getline(kosdaq_file, code)) {
         target_list.push_back(code);

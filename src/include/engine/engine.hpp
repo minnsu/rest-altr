@@ -1,5 +1,8 @@
-#include <vector>
+#include <array>
+#include <ctime>
+#include <map>
 #include <string>
+#include <vector>
 
 #include <boost/json.hpp>
 
@@ -26,14 +29,36 @@ namespace transaction {
 };
 
 namespace backtest {
-    void load_data(string path);
+    extern float tax;
+    extern float charge;
+    extern float max_distribute_rate;
+    extern int cash;
+    extern int total_evaluate;
+    extern float profit_cut;
+    extern float loss_cut;
+    extern map<string, std::array<int, 3>> account;
+
     extern boost::json::object data_cache;
+    extern string date;
     extern vector<string> tr_log;
 
     int refresh(string& date, string& code);
     void run(string& start, string& end, int cash, vector<string>& target_list);
+
+    namespace utils {
+        void load_data(string path);
+
+        bool tm_is_equal(tm& day1, tm& day2);
+        void tm_inc(tm& day);
+
+        void buysell(vector<pair<string, pair<vector<float>, int>>>& buy_list, vector<string>& sell_list);
+        void refresh_account();
+        void show_account();
+        
+        void clear_account();
+    };
 };
 
 namespace strategy {
-    int v0();
+    vector<float> v0();
 }
