@@ -5,6 +5,7 @@ using namespace std;
 namespace runtime {
     namespace indicator {
         extern double PRICE;
+        extern double VOLUME;
         extern double PER;
         extern double PBR;
         extern double AVG_5;

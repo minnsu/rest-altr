@@ -5,14 +5,15 @@
 #include "include/net/net.hpp"
 #include "include/api/api.hpp"
 #include "include/runtime/backtest/backtest.hpp"
+#include "include/runtime/engine/engine.hpp"
 
 int main(int argc, char *argv[]) {
-    // api::kis::init(argc, argv);
-    // api::kis::oauth::approval();
-    // api::kis::oauth::token();
-    // net::websocket ws_client(api::kis::ws_domain, api::kis::ws_port);
+    api::kis::init(argc, argv);
+    api::kis::oauth::approval();
+    api::kis::oauth::token();
+    net::websocket ws_client(api::kis::ws_domain, api::kis::ws_port);
 
-    // api::kis::show_user(true);
+    api::kis::show_user(true);
 
     std::string start = "20230701";
     std::string end = "20230925";
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
     }
     kosdaq_file.close();
 
-    backtest::run(start, end, 10000000, target_list);
+    transaction::run(target_list);
 
     return 0;
 }

@@ -5,6 +5,7 @@
 using namespace std;
 
 double runtime::indicator::PRICE;
+double runtime::indicator::VOLUME;
 double runtime::indicator::PER;
 double runtime::indicator::PBR;
 double runtime::indicator::AVG_5;
