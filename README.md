@@ -13,7 +13,7 @@
     - libcrypto++-dev - for decrypt realtime data
         - ```apt install libcrypto++-dev```
     - sqlite3
-        - ```wget https://www.sqlite.org/2023/sqlite-autoconf-3430100.tar.gz```
+        - ```apt install sqlite3 libsqlite3-dev```
 
 
 ## How to run

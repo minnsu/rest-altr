@@ -2,5 +2,6 @@
 
 bin/
 db/__pycache__
+db/stocks.db
 
 secret.txt

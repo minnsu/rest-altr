@@ -4,7 +4,10 @@
 
 using namespace std;
 
-double runtime::indicator::PRICE;
+double runtime::indicator::OPEN;
+double runtime::indicator::HIGH;
+double runtime::indicator::LOW;
+double runtime::indicator::CLOSE;
 double runtime::indicator::VOLUME;
 double runtime::indicator::PER;
 double runtime::indicator::PBR;
@@ -91,17 +94,17 @@ vector<float> runtime::strategy::v0() {
         scores.push_back(-1 * indicator::RSI_9 * 10);
 
     // Bollinger band
-    if(indicator::PRICE <= indicator::BOLLINGER_LOW)
-        scores.push_back(7);
-    else if(indicator::PRICE >= indicator::BOLLINGER_HIGH * 0.98)
-        scores.push_back(-7);
+    // if(indicator::PRICE <= indicator::BOLLINGER_LOW)
+    //     scores.push_back(7);
+    // else if(indicator::PRICE >= indicator::BOLLINGER_HIGH * 0.98)
+    //     scores.push_back(-7);
     
-    if(indicator::BOLLINGER_HIGH - indicator::BOLLINGER_LOW < indicator::PRICE * 0.1) {
-        if(indicator::AVG_20 - indicator::BOLLINGER_LOW > indicator::PRICE - indicator::BOLLINGER_LOW)
-            scores.push_back(7);
-        else if(indicator::BOLLINGER_HIGH - indicator::AVG_20 > indicator::BOLLINGER_HIGH - indicator::PRICE)
-            scores.push_back(-7);
-    }
+    // if(indicator::BOLLINGER_HIGH - indicator::BOLLINGER_LOW < indicator::PRICE * 0.1) {
+    //     if(indicator::AVG_20 - indicator::BOLLINGER_LOW > indicator::PRICE - indicator::BOLLINGER_LOW)
+    //         scores.push_back(7);
+    //     else if(indicator::BOLLINGER_HIGH - indicator::AVG_20 > indicator::BOLLINGER_HIGH - indicator::PRICE)
+    //         scores.push_back(-7);
+    // }
 
     // Integrity Powerful
     // if(indicator::PRICE < indicator::BOLLINGER_LOW && indicator::RSI_14 < 0.3)

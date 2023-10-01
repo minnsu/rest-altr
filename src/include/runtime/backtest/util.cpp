@@ -10,25 +10,10 @@
 #include "../runtime.hpp"
 
 using namespace backtest;
+using namespace backtest::SQL;
 using namespace backtest::env;
-using namespace runtime::param;
 
-/**
- * Load data from path as boost::json::object to data_cache
- * @param {string} path: path of data file.
-*/
-void util::load_data(string path) {
-    ifstream fs(path);
-    if(!fs.is_open()) {
-        perror("File not found!");
-        exit(1);
-    }
-    stringstream ss;
-    ss << fs.rdbuf();
-    fs.close();
-    string result = ss.str();
-    year_data_cache = boost::json::parse(result).as_object();
-}
+using namespace runtime::param;
 
 /**
  * Check if tm variable indicate same day.
@@ -90,7 +75,7 @@ void util::tm_inc(tm& day) {
  * @param {vector<pair<string, pair<int, int>>>&} buy_list: buy targets
  * @param {vector<string>&} sell_list: sell targets
 */
-void util::buysell(map<int, pair<string, int>, greater<int>>& buy_list, vector<string>& sell_list, map<string, vector<float>>& scores) {
+void util::buysell(string& date, map<int, pair<string, int>, greater<int>>& buy_list, vector<string>& sell_list, map<string, vector<float>>& scores) {
     char log[256];
     int qty, avg_price, cur_price, profit_loss;
     float profit_loss_rate;
@@ -199,4 +184,28 @@ void backtest::util::clear_account() {
         cash += (float) (1 - TAX - CHARGE) * it.second[2] * it.second[0];
     }
     account.clear();
+}
+
+
+
+
+
+/**
+ * 
+*/
+void backtest::SQL::SQL_ERROR_CHECK(int rc, char *ErrMsg) {
+    if(rc != SQLITE_OK) {
+        fprintf(stderr, "SQL Error: %s\n", ErrMsg);
+        sqlite3_free(ErrMsg);
+        sqlite3_close(db);
+        exit(1);
+    }
+}
+
+/**
+ * 
+*/
+int backtest::SQL::callback_code2market(void *market, int argc, char **argv, char **col_name) {
+    strcpy((char *) market, argv[0]);
+    return 0;
 }

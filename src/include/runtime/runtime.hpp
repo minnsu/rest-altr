@@ -4,7 +4,11 @@ using namespace std;
 
 namespace runtime {
     namespace indicator {
-        extern double PRICE;
+        extern double OPEN;
+        extern double HIGH;
+        extern double LOW;
+        extern double CLOSE;
+        
         extern double VOLUME;
         extern double PER;
         extern double PBR;

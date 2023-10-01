@@ -1,6 +1,6 @@
 CC= g++# compiler
 CXXFLAGS= -O2# compiler flags
-LDFLAGS= -lcrypto -lssl # linker flags
+LDFLAGS= -lcrypto -lssl -lsqlite3 # linker flags
 TARGET= program# executable file name
 
 # executable file directory

@@ -27,7 +27,7 @@ int transaction::refresh(string& code) {
     pair<json::object, json::object> response = domestic::stock_chartprice(code, start_and_today.first, start_and_today.second);
     json::object output1 = response.second["output1"].as_object();
     
-    indicator::PRICE = atof(output1["stck_prpr"].as_string().c_str());
+    indicator::CLOSE = atof(output1["stck_prpr"].as_string().c_str());
     indicator::PER = atof(output1["per"].as_string().c_str());
     indicator::PBR = atof(output1["pbr"].as_string().c_str());
 
@@ -80,7 +80,10 @@ int transaction::refresh(string& code) {
     }
 
     cout << code << endl;
-    cout << indicator::PRICE << endl;
+    cout << indicator::OPEN << endl;
+    cout << indicator::HIGH << endl;
+    cout << indicator::LOW << endl;
+    cout << indicator::CLOSE << endl;
     cout << indicator::PER << endl;
     cout << indicator::PBR << endl;
     cout << indicator::AVG_5 << endl;
