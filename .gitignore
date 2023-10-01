@@ -1,5 +1,6 @@
 .vscode/
 
 bin/
+db/__pycache__
 
 secret.txt
