@@ -20,6 +20,7 @@ namespace backtest {
         void tm_inc(tm& day);
 
         void buysell(string& date, map<int, pair<string, int>, greater<int>>& buy_list, vector<string>& sell_list, map<string, vector<float>>& scores);
+        
         void refresh_account();
         void show_account();
         void clear_account();
@@ -27,9 +28,7 @@ namespace backtest {
 
     namespace SQL {
         void SQL_ERROR_CHECK(int rc, char *ErrMsg);
-        
-        int callback_code2market(void *market, int argc, char **argv, char **col_name);
-    }
+    };
 
     namespace env {
         extern map<string, std::array<int, 3>> account;

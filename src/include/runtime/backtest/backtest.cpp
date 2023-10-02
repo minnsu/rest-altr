@@ -19,37 +19,43 @@ using namespace runtime::param;
 */
 bool backtest::refresh(string& date, string& code) {
     
-    char market[16];
-    char *ErrMsg;
-    int rc = sqlite3_exec(db,
-        ("SELECT market FROM STOCK_INFO WHERE code='" + code + "';").c_str(),
-        callback_code2market,
-        (void*) market,
-        &ErrMsg
-    ); SQL_ERROR_CHECK(rc, ErrMsg);
-
     sqlite3_stmt *stmt;
+    string market;
+    int rc = sqlite3_prepare_v2(db,
+        ("SELECT market FROM STOCK_INFO WHERE code='" + code + "';").c_str(),
+        -1, &stmt, NULL
+    ); SQL_ERROR_CHECK(rc, NULL);
+    if(sqlite3_step(stmt) == SQLITE_ROW) {
+        market = string((const char*) sqlite3_column_text(stmt, 0));
+    } else
+        return false;
+    sqlite3_finalize(stmt);
+    
+    tm tm;
+    char one_year_past[10];
+    strptime(date.c_str(), "%Y%m%d", &tm);
+    tm.tm_year -= 1;
+    strftime(one_year_past, sizeof(one_year_past), "%Y%m%d", &tm);
+    
     rc = sqlite3_prepare_v2(db,
         ("SELECT open, high, low, close, volume, change, per, pbr FROM " + string(market) +
-        " WHERE date='" + date + "' AND code='" + code + "';").c_str(), -1, &stmt, NULL
-    ); SQL_ERROR_CHECK(rc, ErrMsg);
-    sqlite3_free(ErrMsg);
-    if(sqlite3_step(stmt) != SQLITE_ROW) { // no result
-        return false;
+        " WHERE code='" + code + "' AND date > '" + one_year_past + "' AND date < '" + date + "';").c_str(), -1, &stmt, NULL
+    ); SQL_ERROR_CHECK(rc, NULL);
+    
+    bool success = false;
+    int idx;
+    for(idx = 0; sqlite3_step(stmt) == SQLITE_ROW; idx++) { // Too slow.
+        success = true;
+        indicator::OPEN(idx) = sqlite3_column_double(stmt, 0);
+        indicator::HIGH(idx) = sqlite3_column_double(stmt, 1);
+        indicator::LOW(idx) = sqlite3_column_double(stmt, 2);
+        indicator::CLOSE(idx) = sqlite3_column_double(stmt, 3);
+        indicator::VOLUME(idx) = sqlite3_column_double(stmt, 4);
+        indicator::PER(idx) = sqlite3_column_double(stmt, 6);
+        indicator::PBR(idx) = sqlite3_column_double(stmt, 7);
     }
-
-    indicator::OPEN = atoi((const char*) sqlite3_column_text(stmt, 0));
-    indicator::HIGH = atoi((const char*) sqlite3_column_text(stmt, 1));
-    indicator::LOW = atoi((const char*) sqlite3_column_text(stmt, 2));
-    indicator::CLOSE = atoi((const char*) sqlite3_column_text(stmt, 3));
-    indicator::VOLUME = atoi((const char*) sqlite3_column_text(stmt, 4));
-    indicator::PER = atof((const char*) sqlite3_column_text(stmt, 6));
-    indicator::PBR = atof((const char*) sqlite3_column_text(stmt, 7));
-
-    if(sqlite3_finalize(stmt) != SQLITE_OK) {
-        exit(1);
-    }
-    return true;
+    sqlite3_finalize(stmt);
+    return success;
 }
 
 /**
@@ -98,16 +104,16 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
             stock_scores[code] = scores;
             
             int score = (int) accumulate(scores.begin(), scores.end(), 0);
-            if(score > 0)
-                buy_list[score] = {code, indicator::CLOSE};
+            // if(score > 0)
+            //     buy_list[score] = {code, indicator::CLOSE};
             
-            if(account.find(code) != account.end()) {
-                if(score < 0
-                    || indicator::CLOSE < (float) account[code][1] * (1 - LOSS_CUT)
-                    || indicator::CLOSE > (float) account[code][1] * (1 + PROFIT_CUT))
-                    sell_list.push_back(code);
-                account[code][2] = indicator::CLOSE;
-            }
+            // if(account.find(code) != account.end()) {
+            //     if(score < 0
+            //         || indicator::CLOSE < (float) account[code][1] * (1 - LOSS_CUT)
+            //         || indicator::CLOSE > (float) account[code][1] * (1 + PROFIT_CUT))
+            //         sell_list.push_back(code);
+            //     account[code][2] = indicator::CLOSE;
+            // }
         }
 
         // Print account with price

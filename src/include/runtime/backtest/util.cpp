@@ -201,11 +201,3 @@ void backtest::SQL::SQL_ERROR_CHECK(int rc, char *ErrMsg) {
         exit(1);
     }
 }
-
-/**
- * 
-*/
-int backtest::SQL::callback_code2market(void *market, int argc, char **argv, char **col_name) {
-    strcpy((char *) market, argv[0]);
-    return 0;
-}

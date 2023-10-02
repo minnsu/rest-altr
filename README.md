@@ -14,6 +14,8 @@
         - ```apt install libcrypto++-dev```
     - sqlite3
         - ```apt install sqlite3 libsqlite3-dev```
+    - eigen3
+        - ```apt install libeigen3-dev```
 
 
 ## How to run
