@@ -46,6 +46,9 @@ bool backtest::refresh(string& date, string& code) {
     indicator::PER = atof((const char*) sqlite3_column_text(stmt, 6));
     indicator::PBR = atof((const char*) sqlite3_column_text(stmt, 7));
 
+    if(sqlite3_finalize(stmt) != SQLITE_OK) {
+        exit(1);
+    }
     return true;
 }
 

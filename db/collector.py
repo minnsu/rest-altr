@@ -31,7 +31,7 @@ def STOCK_INFO_updater(db_connection : sqlite3.Connection, market : str):
 
 def MARKET_updater(db_connection : sqlite3.Connection, market : str):
     import numpy as np
-    from datetime import datetime
+    import datetime
     start_date = '20180101'
     
     cur = db_connection.cursor()
@@ -44,16 +44,21 @@ def MARKET_updater(db_connection : sqlite3.Connection, market : str):
     lastest_date = cur.fetchone()[0] # (date, )[0]
     if lastest_date is None: # No data, then start from '20150101'
         lastest_date = start_date
+    else:
+        lastest_date = datetime.datetime.strptime(lastest_date, '%Y%m%d')
+        lastest_date = str(lastest_date.date() + datetime.timedelta(days=1)).replace('-', '')
 
     for idx, code in enumerate(code_list):
         print('Updating.. {} ({}/{})\r'.format(code, idx+1, len(code_list)), end='')
         try:
             data = fdr.DataReader(code, lastest_date)
+            if len(data) == 0:
+                continue
             data['Change'] = [0] + (np.array(data['Close'][1:]) - np.array(data['Close'][:-1])).tolist()
             if market in ['KOSPI', 'KOSDAQ']:
                 cur.execute('SELECT ISU_CD FROM STOCK_INFO WHERE code="{}"'.format(code))
                 isu_cd = cur.fetchone()[0] # (ISU_CD, )[0]
-                per_pbr = krx_per_pbr(lastest_date, str(datetime.today().date()).replace('-', ''), isu_cd)
+                per_pbr = krx_per_pbr(lastest_date, str(datetime.datetime.today().date()).replace('-', ''), isu_cd)
             if len(per_pbr) != len(data):
                 diff = len(data) - len(per_pbr)
                 to_concat = pd.DataFrame({'PER': [0 for _ in range(diff)], 'PBR': [0 for _ in range(diff)]})

@@ -25,11 +25,11 @@ int main(int argc, char *argv[]) {
         target_list.push_back(code);
     }
     kospi_file.close();
-    // std::ifstream kosdaq_file("./src/data/codes/KOSDAQ.txt");
-    // while(getline(kosdaq_file, code)) {
-    //     target_list.push_back(code);
-    // }
-    // kosdaq_file.close();
+    std::ifstream kosdaq_file("./src/data/codes/KOSDAQ.txt");
+    while(getline(kosdaq_file, code)) {
+        target_list.push_back(code);
+    }
+    kosdaq_file.close();
 
     backtest::run(start, end, 10000000, target_list);
 
