@@ -27,9 +27,9 @@ int transaction::refresh(string& code) {
     pair<json::object, json::object> response = domestic::stock_chartprice(code, start_and_today.first, start_and_today.second);
     json::object output1 = response.second["output1"].as_object();
     
-    indicator::CLOSE = atof(output1["stck_prpr"].as_string().c_str());
-    indicator::PER = atof(output1["per"].as_string().c_str());
-    indicator::PBR = atof(output1["pbr"].as_string().c_str());
+    // indicator::CLOSE = atof(output1["stck_prpr"].as_string().c_str());
+    // indicator::PER = atof(output1["per"].as_string().c_str());
+    // indicator::PBR = atof(output1["pbr"].as_string().c_str());
 
     json::array output2 = response.second["output2"].as_array();
     // AVG
@@ -56,22 +56,22 @@ int transaction::refresh(string& code) {
         }
         diff_square_sum += diff * diff;
         
-        if(idx == 5)
-            indicator::AVG_5 = price_sum / 5;
+        if(idx == 5) ;
+            // indicator::AVG_5 = price_sum / 5;
         else if(idx == 20) {
-            indicator::AVG_20 = price_sum / 20;
+            // indicator::AVG_20 = price_sum / 20;
             double variance = (float) diff_square_sum / 20;
             double std = sqrt(variance);
-            indicator::BOLLINGER_LOW = indicator::AVG_20 - std * 2;
-            indicator::BOLLINGER_HIGH = indicator::AVG_20 + std * 2;
-        } else if(idx == 60)
-            indicator::AVG_60 = price_sum / 60;
-        else if(idx == 9)
-            indicator::RSI_9 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
-        else if(idx == 14)
-            indicator::RSI_14 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
-        else if(idx == 28)
-            indicator::RSI_28 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
+            // indicator::BOLLINGER_LOW = indicator::AVG_20 - std * 2;
+            // indicator::BOLLINGER_HIGH = indicator::AVG_20 + std * 2;
+        } else if(idx == 60) ;
+            // indicator::AVG_60 = price_sum / 60;
+        else if(idx == 9) ;
+            // indicator::RSI_9 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
+        else if(idx == 14) ; 
+            // indicator::RSI_14 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
+        else if(idx == 28) ;
+            // indicator::RSI_28 = (up_sum.first / up_sum.second) / ((up_sum.first / up_sum.second) - (down_sum.first / down_sum.second));
 
         
         idx++;
@@ -113,7 +113,7 @@ void transaction::run(vector<string>& target_list) {
         else if(ret == -2)
             continue;
         
-        vector<float> scores = strategy::v0();
+        vector<float> scores = strategy::v0(code);
         stock_scores[code] = scores;
         int score = (int) accumulate(scores.begin(), scores.end(), 0);
         if(score > 0)

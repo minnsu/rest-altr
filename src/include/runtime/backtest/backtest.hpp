@@ -5,9 +5,6 @@
 
 #include <boost/json/object.hpp>
 
-#include <sqlite3.h>
-// #include "../../sqlite/sqlite3.h"
-
 using namespace std;
 
 namespace backtest {
@@ -26,16 +23,11 @@ namespace backtest {
         void clear_account();
     };
 
-    namespace SQL {
-        void SQL_ERROR_CHECK(int rc, char *ErrMsg);
-    };
-
     namespace env {
         extern map<string, std::array<int, 3>> account;
         extern int cash;
         extern int total_evaluate;
         
-        extern sqlite3 *db;
         extern vector<string> tr_log;
     };
 };

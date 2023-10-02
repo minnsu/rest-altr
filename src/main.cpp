@@ -2,8 +2,11 @@
 #include <fstream>
 #include <vector>
 
+#include <sqlite3.h>
+
 #include "include/net/net.hpp"
 #include "include/api/api.hpp"
+
 #include "include/runtime/backtest/backtest.hpp"
 #include "include/runtime/engine/engine.hpp"
 

@@ -10,7 +10,6 @@
 #include "../runtime.hpp"
 
 using namespace backtest;
-using namespace backtest::SQL;
 using namespace backtest::env;
 
 using namespace runtime::param;
@@ -184,20 +183,4 @@ void backtest::util::clear_account() {
         cash += (float) (1 - TAX - CHARGE) * it.second[2] * it.second[0];
     }
     account.clear();
-}
-
-
-
-
-
-/**
- * 
-*/
-void backtest::SQL::SQL_ERROR_CHECK(int rc, char *ErrMsg) {
-    if(rc != SQLITE_OK) {
-        fprintf(stderr, "SQL Error: %s\n", ErrMsg);
-        sqlite3_free(ErrMsg);
-        sqlite3_close(db);
-        exit(1);
-    }
 }

@@ -12,14 +12,14 @@ cur.execute('CREATE INDEX code_name ON STOCK_INFO (code, name);')
 
 # Korea
 cur.execute('CREATE TABLE IF NOT EXISTS KOSPI(date TEXT, code TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, volume INTEGER, change INTEGER, per REAL, pbr REAL, PRIMARY KEY(date, code));')
-cur.execute('CREATE INDEX IF NOT EXISTS date_code ON KOSPI (date, code);')
+cur.execute('CREATE INDEX i_all_1 ON KOSPI (date, code, open, high, low, close, volume, change, per, pbr);')
 cur.execute('CREATE TABLE IF NOT EXISTS KOSDAQ(date TEXT, code TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, volume INTEGER, change INTEGER, per REAL, pbr REAL, PRIMARY KEY(date, code));')
-cur.execute('CREATE INDEX IF NOT EXISTS date_code ON KOSDAQ (date, code);')
+cur.execute('CREATE INDEX i_all_2 ON KOSDAQ (date, code, open, high, low, close, volume, change, per, pbr);')
 
 # US
 cur.execute('CREATE TABLE IF NOT EXISTS NASDAQ(date TEXT, code TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, volume INTEGER, change INTEGER, per REAL, pbr REAL, PRIMARY KEY(date, code));')
-cur.execute('CREATE INDEX IF NOT EXISTS date_code ON NASDAQ (date, code);')
+cur.execute('CREATE INDEX i_all_3 ON NASDAQ (date, code, open, high, low, close, volume, change, per, pbr);')
 cur.execute('CREATE TABLE IF NOT EXISTS NYSE(date TEXT, code TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, volume INTEGER, change INTEGER, per REAL, pbr REAL, PRIMARY KEY(date, code));')
-cur.execute('CREATE INDEX IF NOT EXISTS date_code ON NYSE (date, code);')
+cur.execute('CREATE INDEX i_all_4 ON NYSE (date, code, open, high, low, close, volume, change, per, pbr);')
 cur.execute('CREATE TABLE IF NOT EXISTS AMEX(date TEXT, code TEXT, open INTEGER, high INTEGER, low INTEGER, close INTEGER, volume INTEGER, change INTEGER, per REAL, pbr REAL, PRIMARY KEY(date, code));')
-cur.execute('CREATE INDEX IF NOT EXISTS date_code ON AMEX (date, code);')
+cur.execute('CREATE INDEX i_all_5 ON AMEX (date, code, open, high, low, close, volume, change, per, pbr);')

@@ -6,10 +6,10 @@
 
 using namespace backtest;
 using namespace backtest::util;
-using namespace backtest::SQL;
 using namespace backtest::env;
 
 using namespace runtime;
+using namespace runtime::DB;
 using namespace runtime::param;
 
 /**
@@ -39,20 +39,32 @@ bool backtest::refresh(string& date, string& code) {
     
     rc = sqlite3_prepare_v2(db,
         ("SELECT open, high, low, close, volume, change, per, pbr FROM " + string(market) +
-        " WHERE code='" + code + "' AND date > '" + one_year_past + "' AND date < '" + date + "';").c_str(), -1, &stmt, NULL
+        " WHERE code='" + code + "' AND date ='" + date + "';").c_str(), -1, &stmt, NULL
     ); SQL_ERROR_CHECK(rc, NULL);
     
     bool success = false;
-    int idx;
-    for(idx = 0; sqlite3_step(stmt) == SQLITE_ROW; idx++) { // Too slow.
+    if(sqlite3_step(stmt) == SQLITE_ROW) {
         success = true;
-        indicator::OPEN(idx) = sqlite3_column_double(stmt, 0);
-        indicator::HIGH(idx) = sqlite3_column_double(stmt, 1);
-        indicator::LOW(idx) = sqlite3_column_double(stmt, 2);
-        indicator::CLOSE(idx) = sqlite3_column_double(stmt, 3);
-        indicator::VOLUME(idx) = sqlite3_column_double(stmt, 4);
-        indicator::PER(idx) = sqlite3_column_double(stmt, 6);
-        indicator::PBR(idx) = sqlite3_column_double(stmt, 7);
+
+        int idx = cache[code].last_idx + 1;
+        cache[code].data[0](idx) = sqlite3_column_double(stmt, 0); 
+        cache[code].data[1](idx) = sqlite3_column_double(stmt, 1);
+        cache[code].data[2](idx) = sqlite3_column_double(stmt, 2);
+        cache[code].data[3](idx) = sqlite3_column_double(stmt, 3);
+        cache[code].data[4](idx) = sqlite3_column_double(stmt, 4);
+        cache[code].data[5](idx) = sqlite3_column_double(stmt, 5);
+        cache[code].data[6](idx) = sqlite3_column_double(stmt, 6);
+        cache[code].data[7](idx) = sqlite3_column_double(stmt, 7);
+        cache[code].last_idx++;
+
+        indicator::OPEN = &cache[code].data[0];
+        indicator::HIGH = &cache[code].data[1];
+        indicator::LOW = &cache[code].data[2];
+        indicator::CLOSE = &cache[code].data[3];
+        indicator::VOLUME = &cache[code].data[4];
+        indicator::CHANGE = &cache[code].data[5];
+        indicator::PER = &cache[code].data[6];
+        indicator::PBR = &cache[code].data[7];
     }
     sqlite3_finalize(stmt);
     return success;
@@ -62,14 +74,8 @@ bool backtest::refresh(string& date, string& code) {
  * 
 */
 void backtest::run(string& start, string& end, int init_cash, vector<string>& target_list) {
-    int rc = sqlite3_open("./db/stocks.db", &db);
-    if(rc != SQLITE_OK) {
-        cout << "Can not open database: \n" << sqlite3_errmsg(db);
-        sqlite3_close(db);
-        exit(1);
-    }
-    sqlite3_exec(db, "PRAGMA cache_size=16384;", NULL, NULL, NULL);
-    sqlite3_exec(db, "PRAGMA synchronous=OFF;", NULL, NULL, NULL);
+    DB::SQL_OPEN();
+    DB::SQL_CACHING(start, end, target_list);
         
     cash = init_cash;
     total_evaluate = cash;
@@ -100,20 +106,21 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
             if( !ret )
                 continue;
             
-            vector<float> scores = strategy::v0();
+            vector<float> scores = strategy::v0(code);
             stock_scores[code] = scores;
             
             int score = (int) accumulate(scores.begin(), scores.end(), 0);
-            // if(score > 0)
-            //     buy_list[score] = {code, indicator::CLOSE};
+            int price = indicator::CLOSE->operator()(runtime::cache[code].last_idx);
+            if(score > 0)
+                buy_list[score] = {code, price};
             
-            // if(account.find(code) != account.end()) {
-            //     if(score < 0
-            //         || indicator::CLOSE < (float) account[code][1] * (1 - LOSS_CUT)
-            //         || indicator::CLOSE > (float) account[code][1] * (1 + PROFIT_CUT))
-            //         sell_list.push_back(code);
-            //     account[code][2] = indicator::CLOSE;
-            // }
+            if(account.find(code) != account.end()) {
+                if(score < 0
+                    || price < (float) account[code][1] * (1 - LOSS_CUT)
+                    || price > (float) account[code][1] * (1 + PROFIT_CUT))
+                    sell_list.push_back(code);
+                account[code][2] = price;
+            }
         }
 
         // Print account with price
@@ -130,5 +137,6 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
     refresh_account();
     show_account();
 
+    printf("Database closing..\n");
     sqlite3_close(db);
 }
