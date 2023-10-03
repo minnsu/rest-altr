@@ -101,7 +101,6 @@ int transaction::refresh(string& code) {
  * 
 */
 void transaction::run(vector<string>& target_list) {
-    map<string, vector<float>> stock_scores;
     map<int, string, greater<int>> buy_list;
     vector<pair<string, int>> sell_list;
 
@@ -113,9 +112,7 @@ void transaction::run(vector<string>& target_list) {
         else if(ret == -2)
             continue;
         
-        vector<float> scores = strategy::v0(code);
-        stock_scores[code] = scores;
-        int score = (int) accumulate(scores.begin(), scores.end(), 0);
+        int score = strategy::v0(code);
         if(score > 0)
             buy_list[score] = code;
         else if( (qty = util::how_many_have(code)) )

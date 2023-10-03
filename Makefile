@@ -18,6 +18,8 @@ RUNTIME=./src/include/runtime/
 RT_BACKTEST=${RUNTIME}backtest/
 RT_ENGINE=${RUNTIME}engine/
 
+SERIES_CALC=./src/include/series_calc/
+
 # Each directory's object file names
 SRC_NAMES := $(patsubst ${SOURCE}%.cpp,${BINARY}%.o,$(wildcard ${SOURCE}*.cpp))
 NET_NAMES := $(patsubst ${NET}%.cpp,${BINARY}%.o,$(wildcard ${NET}*.cpp))
@@ -30,8 +32,10 @@ RT_NAMES := $(patsubst ${RUNTIME}%.cpp,${BINARY}%.o,$(wildcard ${RUNTIME}*.cpp))
 RTB_NAMES := $(patsubst ${RT_BACKTEST}%.cpp,${BINARY}runtime_backtest_%.o,$(wildcard ${RT_BACKTEST}*.cpp))
 RTE_NAMES := $(patsubst ${RT_ENGINE}%.cpp,${BINARY}runtime_engine_%.o,$(wildcard ${RT_ENGINE}*.cpp))
 
+SERIES_CALC_NAMES := $(patsubst ${SERIES_CALC}%.cpp,${BINARY}%.o,$(wildcard ${SERIES_CALC}*.cpp))
+
 # Object file names
-OBJS= ${SRC_NAMES} ${NET_NAMES} ${AK_NAMES} ${AKD_NAMES} ${AKS_NAMES} ${RT_NAMES} ${RTB_NAMES} ${RTE_NAMES}
+OBJS= ${SRC_NAMES} ${NET_NAMES} ${AK_NAMES} ${AKD_NAMES} ${AKS_NAMES} ${RT_NAMES} ${RTB_NAMES} ${RTE_NAMES} ${SERIES_CALC_NAMES}
 
 # make executable file from object files, excutable program file store in this directory
 $(BINARY)$(TARGET): $(OBJS)
@@ -64,6 +68,11 @@ $(BINARY)runtime_backtest_%.o: $(RT_BACKTEST)%.cpp
 
 $(BINARY)%.o: $(RUNTIME)%.cpp
 	$(CC) -c $< -o $@ $(CXXFLAGS)
+
+# Series calculation files compile zone.
+$(BINARY)%.o: $(SERIES_CALC)%.cpp
+	$(CC) -c $< -o $@ $(CXXFLAGS)
+
 
 
 

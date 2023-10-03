@@ -67,55 +67,97 @@ void util::tm_inc(tm& day) {
 }
 
 /**
- * Backtesting only. Buy or sell stocks by specified conditions.
- * @param {map<string, array<int, 3>>&} account: current stock account
- * @param {int&} total_evaluate: current total evaluation
- * @param {int&} cash: current cash
- * @param {vector<pair<string, pair<int, int>>>&} buy_list: buy targets
- * @param {vector<string>&} sell_list: sell targets
+ * Transform tm to string by format.
 */
-void util::buysell(string& date, map<int, pair<string, int>, greater<int>>& buy_list, vector<string>& sell_list, map<string, vector<float>>& scores) {
+string backtest::util::tm_to_string(tm& tm, string format) {
+    char tmp[16];
+    strftime(tmp, sizeof(tmp), format.c_str(), &tm);
+    return string(tmp);
+}
+
+/**
+ * Check if parameter today is saturday or sunday.
+*/
+bool backtest::util::isWeekend(tm& today) {
+    if(today.tm_wday == 0 || today.tm_wday == 6) {
+        // cout << "[ Today is " + string((today.tm_wday == 0) ? "Sunday" : "Saturday") + ". ]" << endl;
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * Backtesting only. Buy or sell stocks by specified conditions.
+ * @param {string&} date: for record log.
+ * @param {multimap<float, pair<string, int>>&} scored_list: sorted by score list. {score, {code, price}}
+*/
+void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list) {
+    refresh_account();
     char log[256];
-    int qty, avg_price, cur_price, profit_loss;
+    
+    string code;
+    int score;
+    int qty, price, avg_price;
+    
+    int profit_loss;
     float profit_loss_rate;
 
-    // First, sell if I have the stock in sell list.
-    for(auto& code : sell_list) {
-        qty = account[code][0];
-        avg_price = account[code][1];
-        cur_price = account[code][2];
-        
-        profit_loss_rate = 100 * (float) cur_price / avg_price - 100;
-        profit_loss = (cur_price - avg_price) * qty;
+    // Sell
+    for(auto& it : scored_list) {
+        score = it.first;
+        code = it.second.first;
+        price = it.second.second;
 
-        memset(log, 0, sizeof(log));
-        sprintf(log, "[%s] 매도 [%s] 평균가: %d\t->\t현재가: %d\t보유량: %d\t => 총 매도가: %d\t(손익률: %.2f%%\t손익: %d)",
-            date.c_str(), code.c_str(),
-            avg_price, cur_price, qty, cur_price * qty,
-            profit_loss_rate, profit_loss);
-        int sum_scores = accumulate(scores[code].begin(), scores[code].end(), 0);
-        tr_log.push_back(string(log) + " score at sell: " + to_string(sum_scores));
+        if(account.find(code) != account.end()) {
+            qty = account[code][0];
+            avg_price = account[code][1];
 
-        cash += ((float) (1 - TAX - CHARGE) * qty * cur_price);
-        account.erase(code);
+            profit_loss_rate = 100 * (float) price / avg_price - 100;
+            profit_loss = (price - avg_price) * qty;
+
+            string sell_flag = "None";
+            if(score < 0)
+                sell_flag = "SCORE LOWER THAN 0";
+            else if(profit_loss_rate / 100 > PROFIT_CUT)
+                sell_flag = "EXCEED PROFIT CUT";
+            else if(profit_loss_rate / 100 < -LOSS_CUT)
+                sell_flag = "EXCEED LOSS CUT";
+            else
+                continue;
+            
+            memset(log, 0, sizeof(log));
+            sprintf(log, "[%s] 매도 [%s] 평균가: %-8d -> 현재가: %-8d 보유량: %-10d => 총 매도가: %10d ---------- (손익률: %.2f%% 손익: %5d) (매도 시점 점수: %-3d 매도 사유 : %s)",
+                date.c_str(), code.c_str(),
+                avg_price, price, qty, price * qty,
+                profit_loss_rate, profit_loss, score, sell_flag.c_str());
+            
+            tr_log.push_back(log);
+            
+            cash += ((float) (1 - TAX - CHARGE) * qty * price);
+            account.erase(code);
+        }
     }
-    sell_list.clear();
-    // Second, buy
-    for(auto& it : buy_list) {
-        cur_price = it.second.second;
-        qty = (total_evaluate * MAX_DIST_RATE) / cur_price;
-        int required_money = (float) (1 + CHARGE) * cur_price * qty;
+
+    // Buy
+    for(auto it = scored_list.rbegin(); it != scored_list.rend(); it++) {
+        score = it->first;
+        code = it->second.first;
+        price = it->second.second;
+
+        if(score <= 0)
+            break;
         
+        qty = (total_evaluate * MAX_DIST_RATE) / price;
+        int required_money = (float) (1 + CHARGE) * price * qty;
         if(cash < required_money) {
-            qty = cash / cur_price;
-            required_money = (float) (1 + CHARGE) * cur_price * qty;
+            qty = cash / price;
+            required_money = (float) (1 + CHARGE) * price * qty;
             if(qty == 0 || cash < required_money)
                 break;
         }
 
-        string code = it.second.first;
-        auto it2 = account.find(code);
-        if(it2 != account.end()) {
+        if(account.find(code) != account.end()) {
             int have_qty = account[code][0];
             avg_price = account[code][1];
 
@@ -126,16 +168,15 @@ void util::buysell(string& date, map<int, pair<string, int>, greater<int>>& buy_
             account[code][1] = (account[code][1] * have_qty + required_money) / (have_qty + qty);
             account[code][0] += qty;
         } else
-            account[code] = {qty, cur_price, cur_price};
+            account[code] = {qty, price, price};
         
         memset(log, 0, sizeof(log));
-        sprintf(log, "[%s] 매수 [%s] 현재가: %d\t수량: %d\t => 총 매수가: %d",
+        sprintf(log, "[%s] 매수 [%s] 현재가: %-8d 수량: %-10d => 총 매수가: %10d",
             date.c_str(), code.c_str(),
-            cur_price, qty, cur_price * qty);
+            price, qty, price * qty);
         tr_log.push_back(string(log));
         cash -= required_money;
     }
-    buy_list.clear();
 }
 
 /**
@@ -151,6 +192,7 @@ void backtest::util::refresh_account() {
  * Show backtest::env::account.
 */
 void backtest::util::show_account() {
+    refresh_account();
     char log[256];
     string code;
     int qty, avg_price, cur_price, profit_loss;
@@ -166,7 +208,7 @@ void backtest::util::show_account() {
         profit_loss_rate = 100 * (float) cur_price / avg_price - 100;
         profit_loss = (cur_price - avg_price) * qty;
         memset(log, 0, sizeof(log));
-        sprintf(log, "| [%s] - 평균가: %d\t현재가: %d\t보유량: %d\t => 평가액: %d\t(손익률: %.2f%%\t손익: %d)",
+        sprintf(log, "| [%s] - 평균가: %-8d 현재가: %-8d 보유량: %-10d => 평가액: %-10d (손익률: %3.2f%% 손익: %10d)",
             code.c_str(), avg_price, cur_price, qty, cur_price * qty, profit_loss_rate, profit_loss);
         printf("%s\n", log);
     }

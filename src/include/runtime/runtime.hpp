@@ -4,10 +4,12 @@
 #include <sqlite3.h>
 #include <eigen3/Eigen/Dense>
 
-using namespace std;
-using namespace Eigen;
+#include "../series_calc/series_calc.hpp"
 
-typedef RowVectorXd Series;
+using namespace std;
+
+using namespace Eigen;
+using namespace series;
 
 namespace runtime {
     namespace indicator {
@@ -40,11 +42,11 @@ namespace runtime {
         extern const float PROFIT_CUT;
         extern const float LOSS_CUT;
     };
+
     namespace strategy {
-        vector<float> v0(string& code);
+        float v0(string& code);
     };
 
-    extern sqlite3 *db;
     
     struct _CACHE {
         string last_date;
@@ -53,6 +55,7 @@ namespace runtime {
     };
     extern map<string, _CACHE> cache; // {code: {last_date, last_idx, cached_data} }
 
+    extern sqlite3 *db;
     namespace DB {
         void SQL_OPEN();
         void SQL_CACHING(string& start_date, string& end_date, vector<string>& target_list);

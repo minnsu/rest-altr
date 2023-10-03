@@ -24,52 +24,27 @@ Series runtime::indicator::BOLLINGER_HIGH = RowVectorXd::Zero(270);
 const float runtime::param::TAX = 0.002;
 const float runtime::param::CHARGE = 0.00015;
 
-const float runtime::param::MAX_DIST_RATE = 0.3;
+const float runtime::param::MAX_DIST_RATE = 0.2;
 const float runtime::param::PROFIT_CUT = 0.2;
-const float runtime::param::LOSS_CUT = 0.03;
+const float runtime::param::LOSS_CUT = 0.05;
 
-vector<float> runtime::strategy::v0(string& code) {
-    // printf("┌-----------------------┐\n"
-    //         "| Price: %f\n"
-    //         "| PER: %f\n"
-    //         "| PBR: %f\n"
-    //         "| 5 avg: %f\n"
-    //         "| 20 avg: %f\n"
-    //         "| 60 avg: %f\n"
-    //         "| RSI 9: %f\n"
-    //         "| RSI 14: %f\n"
-    //         "| RSI 28: %f\n"
-    //         "| Low BB: %f\n"
-    //         "| High BB: %f\n"
-    //         "└-----------------------┘\n",
-    //     indicator::PRICE,
-    //     indicator::PER,
-    //     indicator::PBR,
-    //     indicator::AVG_5,
-    //     indicator::AVG_20,
-    //     indicator::AVG_60,
-    //     indicator::RSI_9,
-    //     indicator::RSI_14,
-    //     indicator::RSI_28,
-    //     indicator::BOLLINGER_LOW,
-    //     indicator::BOLLINGER_HIGH
-    // );
-    vector<float> scores;
+float runtime::strategy::v0(string& code) {
+    float score = 0;
     
     double per = indicator::PER->operator()(cache[code].last_idx);
     double pbr = indicator::PBR->operator()(cache[code].last_idx);
 
     if(per < 10)
-        scores.push_back(10);
+        score += 3 * per;
     else if(per > 30)
-        scores.push_back(-10);
+        score -= per / 5;
     
     if(pbr < 1.2)
-        scores.push_back(10);
+        score += 10 * pbr;
     else if(pbr > 3)
-        scores.push_back(-10);
-    
-    return scores;
+        score -= 4 * pbr;
+
+    return score;
 }
 
 sqlite3 *runtime::db;
@@ -115,7 +90,7 @@ void runtime::DB::SQL_CACHING(string& start_date, string& end_date, vector<strin
     string market;
     
     int rc;
-    for(auto code : target_list) {
+    for(auto& code : target_list) {
         string query = "SELECT market FROM STOCK_INFO WHERE code='" + code + "';";
         rc = sqlite3_prepare_v2(runtime::db, query.c_str(), -1, &stmt, NULL);
         
@@ -148,15 +123,13 @@ void runtime::DB::SQL_CACHING(string& start_date, string& end_date, vector<strin
             cache_stock[6](idx) = sqlite3_column_double(stmt, 8);
             cache_stock[7](idx) = sqlite3_column_double(stmt, 9);
         }
-        runtime::_CACHE tmp;
-        tmp.last_date = start_date;
-        tmp.last_idx = idx;
-        tmp.data = cache_stock;
-        cache[code] = tmp;
-        printf("current : %s (%ld/%ld) \r", code.c_str(), cache.size(), target_list.size());
+        sqlite3_finalize(stmt);
+        
+        cache[code] = runtime::_CACHE {
+            start_date, idx, cache_stock
+        };
+        printf(" -> : %s (%ld%%) \r", code.c_str(), 100 * cache.size() / target_list.size());
     }
-    sqlite3_finalize(stmt);
-
     printf("\nDone.\n");
 }
 

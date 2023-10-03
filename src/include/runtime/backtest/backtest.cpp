@@ -30,7 +30,7 @@ bool backtest::refresh(string& date, string& code) {
     } else
         return false;
     sqlite3_finalize(stmt);
-    
+
     tm tm;
     char one_year_past[10];
     strptime(date.c_str(), "%Y%m%d", &tm);
@@ -56,6 +56,7 @@ bool backtest::refresh(string& date, string& code) {
         cache[code].data[6](idx) = sqlite3_column_double(stmt, 6);
         cache[code].data[7](idx) = sqlite3_column_double(stmt, 7);
         cache[code].last_idx++;
+        cache[code].last_date = date;
 
         indicator::OPEN = &cache[code].data[0];
         indicator::HIGH = &cache[code].data[1];
@@ -67,6 +68,17 @@ bool backtest::refresh(string& date, string& code) {
         indicator::PBR = &cache[code].data[7];
     }
     sqlite3_finalize(stmt);
+
+    indicator::AVG_5 = series::rolling_mean(*indicator::CLOSE, 5, 0);
+    indicator::AVG_20 = series::rolling_mean(*indicator::CLOSE, 20, 0);
+    indicator::AVG_60 = series::rolling_mean(*indicator::CLOSE, 60, 0);
+    
+    Series std_dev = series::rolling_std(*indicator::CLOSE, 20, 0, code);
+    indicator::BOLLINGER_LOW = indicator::AVG_20 - 2 * std_dev;
+    indicator::BOLLINGER_HIGH = indicator::AVG_20 + 2 * std_dev;
+
+    // RSI..? 
+
     return success;
 }
 
@@ -80,61 +92,43 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
     cash = init_cash;
     total_evaluate = cash;
     
-    map<string, vector<float>> stock_scores; // {{code, price} score}, score must be +
-    map<int, pair<string, int>, greater<int>> buy_list;
-    vector<string> sell_list;
+    multimap<float, pair<string, int>> scored_list;
     
-    char today_format[16];
-    string today;
     tm tm_today;
+    strptime(start.c_str(), "%Y%m%d", &tm_today);
     tm tm_end;
     strptime(end.c_str(), "%Y%m%d", &tm_end);
-    strptime(start.c_str(), "%Y%m%d", &tm_today);
 
     for(; !tm_is_equal(tm_today, tm_end); tm_inc(tm_today)) {
-        strftime(today_format, sizeof(today_format), "%Y%m%d", &tm_today);
-        today = string(today_format);
         cout << "Date: " + to_string(tm_today.tm_year + 1900) + "/" + to_string(tm_today.tm_mon + 1) + "/" + to_string(tm_today.tm_mday) << endl;
-        if(tm_today.tm_wday == 0 || tm_today.tm_wday == 6) {
-            cout << "[ Today is " + string((tm_today.tm_wday == 0) ? "Sunday" : "Saturday") + ". ]" << endl;
+        if(isWeekend(tm_today))
             continue;
-        }
+        string today = tm_to_string(tm_today);
 
         // refresh data for each stock and decide to action with score.
+        scored_list.clear();
         for(auto& code : target_list) {
             bool ret = refresh(today, code);
             if( !ret )
                 continue;
             
-            vector<float> scores = strategy::v0(code);
-            stock_scores[code] = scores;
-            
-            int score = (int) accumulate(scores.begin(), scores.end(), 0);
+            float score = strategy::v0(code);
             int price = indicator::CLOSE->operator()(runtime::cache[code].last_idx);
-            if(score > 0)
-                buy_list[score] = {code, price};
-            
-            if(account.find(code) != account.end()) {
-                if(score < 0
-                    || price < (float) account[code][1] * (1 - LOSS_CUT)
-                    || price > (float) account[code][1] * (1 + PROFIT_CUT))
-                    sell_list.push_back(code);
+            scored_list.insert({score, {code, price}});
+            if(account.find(code) != account.end())
                 account[code][2] = price;
-            }
         }
 
         // Print account with price
-        refresh_account();
-        buysell(today, buy_list, sell_list, stock_scores);
+        buysell(today, scored_list);
         show_account();
     }
 
     cout << "----- [LAST STATUS] -----" << endl;
-    for(auto it : tr_log) {
+    for(auto& it : tr_log) {
         cout << it << endl;
     }
     clear_account();
-    refresh_account();
     show_account();
 
     printf("Database closing..\n");

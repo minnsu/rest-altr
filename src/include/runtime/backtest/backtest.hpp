@@ -15,8 +15,10 @@ namespace backtest {
     namespace util {
         bool tm_is_equal(tm& day1, tm& day2);
         void tm_inc(tm& day);
+        string tm_to_string(tm& tm, string format="%Y%m%d");
+        bool isWeekend(tm& today);
 
-        void buysell(string& date, map<int, pair<string, int>, greater<int>>& buy_list, vector<string>& sell_list, map<string, vector<float>>& scores);
+        void buysell(string& date, multimap<float, pair<string, int>>& scored_list);
         
         void refresh_account();
         void show_account();
