@@ -112,7 +112,7 @@ void transaction::run(vector<string>& target_list) {
         else if(ret == -2)
             continue;
         
-        int score = strategy::v0(code);
+        float score = strategy(code);
         if(score > 0)
             buy_list[score] = code;
         else if( (qty = util::how_many_have(code)) )

@@ -1,8 +1,6 @@
 #include <ctime>
-#include <fstream>
 #include <iostream>
-#include <sstream>
-#include <numeric>
+#include <set>
 
 #include <boost/json/parse.hpp>
 
@@ -68,6 +66,8 @@ void util::tm_inc(tm& day) {
 
 /**
  * Transform tm to string by format.
+ * @param {tm&} tm: target to transform to string
+ * @param {string} format: format like printf, default="%Y%m%d"
 */
 string backtest::util::tm_to_string(tm& tm, string format) {
     char tmp[16];
@@ -77,6 +77,7 @@ string backtest::util::tm_to_string(tm& tm, string format) {
 
 /**
  * Check if parameter today is saturday or sunday.
+ * @param {tm&} today: target to check if weekend
 */
 bool backtest::util::isWeekend(tm& today) {
     if(today.tm_wday == 0 || today.tm_wday == 6) {
@@ -97,13 +98,14 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
     char log[256];
     
     string code;
-    int score;
+    float score;
     int qty, price, avg_price;
     
     int profit_loss;
     float profit_loss_rate;
 
     // Sell
+    set<string> sell_list;
     for(auto& it : scored_list) {
         score = it.first;
         code = it.second.first;
@@ -127,7 +129,7 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
                 continue;
             
             memset(log, 0, sizeof(log));
-            sprintf(log, "[%s] 매도 [%s] 평균가: %-8d -> 현재가: %-8d 보유량: %-10d => 총 매도가: %10d ---------- (손익률: %.2f%% 손익: %5d) (매도 시점 점수: %-3d 매도 사유 : %s)",
+            sprintf(log, "[%s] 매도 [%s] 평균가: %-8d -> 현재가: %-8d 보유량: %-10d => 총 매도가: %10d ---------- (손익률: %.2f%% 손익: %5d) (매도 시점 점수: %.4f 매도 사유 : %s)",
                 date.c_str(), code.c_str(),
                 avg_price, price, qty, price * qty,
                 profit_loss_rate, profit_loss, score, sell_flag.c_str());
@@ -136,6 +138,8 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
             
             cash += ((float) (1 - TAX - CHARGE) * qty * price);
             account.erase(code);
+
+            sell_list.insert(code);
         }
     }
 
@@ -145,7 +149,7 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
         code = it->second.first;
         price = it->second.second;
 
-        if(score <= 0)
+        if(score <= 0 || sell_list.find(code) != sell_list.end())
             break;
         
         qty = (total_evaluate * MAX_DIST_RATE) / price;
@@ -171,9 +175,9 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
             account[code] = {qty, price, price};
         
         memset(log, 0, sizeof(log));
-        sprintf(log, "[%s] 매수 [%s] 현재가: %-8d 수량: %-10d => 총 매수가: %10d",
+        sprintf(log, "[%s] 매수 [%s] 현재가: %-8d 수량: %-10d => 총 매수가: %10d ---------- (매수 시점 점수: %.4f)",
             date.c_str(), code.c_str(),
-            price, qty, price * qty);
+            price, qty, price * qty, score);
         tr_log.push_back(string(log));
         cash -= required_money;
     }

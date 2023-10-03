@@ -25,6 +25,7 @@ bool backtest::refresh(string& date, string& code) {
         ("SELECT market FROM STOCK_INFO WHERE code='" + code + "';").c_str(),
         -1, &stmt, NULL
     ); SQL_ERROR_CHECK(rc, NULL);
+    
     if(sqlite3_step(stmt) == SQLITE_ROW) {
         market = string((const char*) sqlite3_column_text(stmt, 0));
     } else
@@ -32,9 +33,10 @@ bool backtest::refresh(string& date, string& code) {
     sqlite3_finalize(stmt);
 
     tm tm;
-    char one_year_past[10];
     strptime(date.c_str(), "%Y%m%d", &tm);
     tm.tm_year -= 1;
+    
+    char one_year_past[10];
     strftime(one_year_past, sizeof(one_year_past), "%Y%m%d", &tm);
     
     rc = sqlite3_prepare_v2(db,
@@ -73,17 +75,23 @@ bool backtest::refresh(string& date, string& code) {
     indicator::AVG_20 = series::rolling_mean(*indicator::CLOSE, 20, 0);
     indicator::AVG_60 = series::rolling_mean(*indicator::CLOSE, 60, 0);
     
-    Series std_dev = series::rolling_std(*indicator::CLOSE, 20, 0, code);
+    Series std_dev = series::rolling_std(*indicator::CLOSE, 20, 0);
     indicator::BOLLINGER_LOW = indicator::AVG_20 - 2 * std_dev;
     indicator::BOLLINGER_HIGH = indicator::AVG_20 + 2 * std_dev;
 
-    // RSI..? 
-
+    indicator::RSI_9 = series::RSI(*indicator::CHANGE, 9);
+    indicator::RSI_14 = series::RSI(*indicator::CHANGE, 14);
+    indicator::RSI_28 = series::RSI(*indicator::CHANGE, 28);
+    
     return success;
 }
 
 /**
- * 
+ * Backtesting running code.
+ * @param {string&} start: backtesting start date
+ * @param {string&} end: backtesting end date
+ * @param {int} init_cash: initial cash
+ * @param {vector<string>&} target_list: target stock code list
 */
 void backtest::run(string& start, string& end, int init_cash, vector<string>& target_list) {
     DB::SQL_OPEN();
@@ -112,14 +120,13 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
             if( !ret )
                 continue;
             
-            float score = strategy::v0(code);
+            float score = strategy(code);
             int price = indicator::CLOSE->operator()(runtime::cache[code].last_idx);
             scored_list.insert({score, {code, price}});
             if(account.find(code) != account.end())
                 account[code][2] = price;
         }
 
-        // Print account with price
         buysell(today, scored_list);
         show_account();
     }

@@ -12,8 +12,10 @@ using namespace Eigen;
 using namespace series;
 
 namespace runtime {
+    float strategy(string& code);
+
     namespace indicator {
-        
+        // typedef Eigen::RowVectorXd series::Series
         extern Series* OPEN;
         extern Series* HIGH;
         extern Series* LOW;
@@ -27,9 +29,11 @@ namespace runtime {
         extern Series AVG_5;
         extern Series AVG_20;
         extern Series AVG_60;
+
         extern Series RSI_9;
         extern Series RSI_14;
         extern Series RSI_28;
+        
         extern Series BOLLINGER_LOW;
         extern Series BOLLINGER_HIGH;
     };
@@ -43,17 +47,12 @@ namespace runtime {
         extern const float LOSS_CUT;
     };
 
-    namespace strategy {
-        float v0(string& code);
-    };
-
-    
     struct _CACHE {
         string last_date;
         int last_idx;
         array<Series, 8> data;
     };
-    extern map<string, _CACHE> cache; // {code: {last_date, last_idx, cached_data} }
+    extern map<string, _CACHE> cache;
 
     extern sqlite3 *db;
     namespace DB {

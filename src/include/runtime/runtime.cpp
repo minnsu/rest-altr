@@ -28,31 +28,11 @@ const float runtime::param::MAX_DIST_RATE = 0.2;
 const float runtime::param::PROFIT_CUT = 0.2;
 const float runtime::param::LOSS_CUT = 0.05;
 
-float runtime::strategy::v0(string& code) {
-    float score = 0;
-    
-    double per = indicator::PER->operator()(cache[code].last_idx);
-    double pbr = indicator::PBR->operator()(cache[code].last_idx);
-
-    if(per < 10)
-        score += 3 * per;
-    else if(per > 30)
-        score -= per / 5;
-    
-    if(pbr < 1.2)
-        score += 10 * pbr;
-    else if(pbr > 3)
-        score -= 4 * pbr;
-
-    return score;
-}
-
 sqlite3 *runtime::db;
 map<string, runtime::_CACHE> runtime::cache;
 
-
 /**
- * 
+ * Open SQLite3 database
 */
 void runtime::DB::SQL_OPEN() {
     printf("Database opening.. ");
@@ -70,7 +50,10 @@ void runtime::DB::SQL_OPEN() {
 }
 
 /**
- * 
+ * Caching SQLite database
+ * @param {string&} start_date: transaction start date
+ * @param {string&} end_date: transaction end date, use for calculate Series type size
+ * @param {vector<string>&} target_list: target stock code list to caching from database
 */
 void runtime::DB::SQL_CACHING(string& start_date, string& end_date, vector<string>& target_list) {
     printf("Database caching.. \n");
@@ -134,7 +117,9 @@ void runtime::DB::SQL_CACHING(string& start_date, string& end_date, vector<strin
 }
 
 /**
- * 
+ * Check error code and print message if error occured.
+ * @param {int} rc: return code
+ * @param {char*} ErrMsg: error message
 */
 void runtime::DB::SQL_ERROR_CHECK(int rc, char *ErrMsg) {
     if(rc != SQLITE_OK) {

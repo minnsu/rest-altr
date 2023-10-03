@@ -27,7 +27,7 @@
 2. Compile the source code with proper project/src/main.cpp
     - Real System vs. Back Testing
 3. Backtesting
-    - You should implements the backtesting strategy function in project/src/include/runtime/runtime.cpp.
+    - You should implements the backtesting strategy function in src/strategy.cpp.
     - Some useful indicator are provided to implements strategy.
 4. Real transaction
     - Change the main code to execute transaction.

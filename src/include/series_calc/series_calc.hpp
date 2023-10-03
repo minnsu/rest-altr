@@ -5,7 +5,6 @@
 using namespace std;
 using namespace Eigen;
 
-
 namespace series {
     typedef RowVectorXd Series;
     
@@ -13,5 +12,7 @@ namespace series {
     vector<pair<int, bool>> crossing(Series& dist1, Series& dist2);
 
     Series rolling_mean(Series& target, int window, int min_period);
-    Series rolling_std(Series& target, int window, int min_period, string code);
+    Series rolling_std(Series& target, int window, int min_period);
+
+    Series RSI(Series& change, int days);
 };
