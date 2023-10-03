@@ -24,7 +24,7 @@ void backtesting(string start, string end, int init_cash);
 int main(int argc, char *argv[]) {
     // program_init(argc, argv);
 
-    backtesting("20230701", "20230927", 10000000);
+    backtesting("20230501", "20230927", 10000000);
     return 0;
 }
 

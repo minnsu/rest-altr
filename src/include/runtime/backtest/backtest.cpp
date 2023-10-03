@@ -18,7 +18,6 @@ using namespace runtime::param;
  * @param {string&} code: target stock code to get data in above date.
 */
 bool backtest::refresh(string& date, string& code) {
-    
     sqlite3_stmt *stmt;
     string market;
     int rc = sqlite3_prepare_v2(db,
@@ -69,6 +68,8 @@ bool backtest::refresh(string& date, string& code) {
         indicator::PER = &cache[code].data[6];
         indicator::PBR = &cache[code].data[7];
     }
+    if(!success)
+        return success;
     sqlite3_finalize(stmt);
 
     indicator::AVG_5 = series::rolling_mean(*indicator::CLOSE, 5, 0);
@@ -128,7 +129,7 @@ void backtest::run(string& start, string& end, int init_cash, vector<string>& ta
         }
 
         buysell(today, scored_list);
-        show_account();
+        // show_account();
     }
 
     cout << "----- [LAST STATUS] -----" << endl;

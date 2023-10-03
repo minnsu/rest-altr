@@ -35,13 +35,13 @@ vector<pair<int, bool>> series::local_extremum(Series& dist) {
  * @param {Series&} dist2: victim series data
  * @return : {N, true} means that dist1(N) cross the dist2 below to above, {N, false} is reverse.
 */
-vector<pair<int, bool>> series::crossing(Series& dist1, Series& dist2) {
+vector<pair<int, bool>> series::crossing(Series& dist1, Series& dist2, int end_idx) {
     vector<pair<int, bool>> result;
     
     Series diff = dist1 - dist2;
     bool sign = (diff(0) > 0 ? true : false);
 
-    for(int i = 1; i < dist1.size(); i++) {
+    for(int i = 1; i < end_idx; i++) {
         bool before = sign;
         sign = (diff(i) > 0 ? true : false);
         if(before != sign)

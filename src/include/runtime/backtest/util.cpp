@@ -129,7 +129,7 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
                 continue;
             
             memset(log, 0, sizeof(log));
-            sprintf(log, "[%s] 매도 [%s] 평균가: %-8d -> 현재가: %-8d 보유량: %-10d => 총 매도가: %10d ---------- (손익률: %.2f%% 손익: %5d) (매도 시점 점수: %.4f 매도 사유 : %s)",
+            sprintf(log, "[%s] SELL [%s] Avg: %-8d -> Price: %-8d Qty: %-10d => Total: %10d ---------- (PL Rate: %.2f%% PL: %5d) (Score: %.4f Reason: %s)",
                 date.c_str(), code.c_str(),
                 avg_price, price, qty, price * qty,
                 profit_loss_rate, profit_loss, score, sell_flag.c_str());
@@ -175,7 +175,7 @@ void util::buysell(string& date, multimap<float, pair<string, int>>& scored_list
             account[code] = {qty, price, price};
         
         memset(log, 0, sizeof(log));
-        sprintf(log, "[%s] 매수 [%s] 현재가: %-8d 수량: %-10d => 총 매수가: %10d ---------- (매수 시점 점수: %.4f)",
+        sprintf(log, "[%s] BUY  [%s] Price: %-8d Qty: %-10d => Total: %10d ---------- (Score: %.4f)",
             date.c_str(), code.c_str(),
             price, qty, price * qty, score);
         tr_log.push_back(string(log));

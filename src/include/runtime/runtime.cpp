@@ -24,7 +24,7 @@ Series runtime::indicator::BOLLINGER_HIGH = RowVectorXd::Zero(270);
 const float runtime::param::TAX = 0.002;
 const float runtime::param::CHARGE = 0.00015;
 
-const float runtime::param::MAX_DIST_RATE = 0.2;
+const float runtime::param::MAX_DIST_RATE = 0.05;
 const float runtime::param::PROFIT_CUT = 0.2;
 const float runtime::param::LOSS_CUT = 0.05;
 
